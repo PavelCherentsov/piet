@@ -1,14 +1,14 @@
 import sys
-from Direction import Direction
-from Point import Point
-from ColorTable import ColorTable, ColorDict
-from Stack import Stack
+from modules.Direction import Direction
+from modules.Point import Point
+from modules.ColorTable import ColorTable, ColorDict
+from modules.Stack import Stack
 from PIL import Image
-from Interpreter import Interpreter
+from modules.Interpreter import Interpreter
 
 
 def main(image):
-    im = Image.open('image.png')
+    im = Image.open(image)
     rgb_im = im.convert('RGB')
     image = []
     for x in range(im.width):
@@ -30,7 +30,7 @@ def main(image):
 
     for x in range(im.width):
         for y in range(im.height):
-            image[x][y] = Point(x,y,image[x][y])
+            image[x][y] = Point(x, y, image[x][y])
     inter = Interpreter(image)
 
 
