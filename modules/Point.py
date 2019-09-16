@@ -6,6 +6,6 @@ class Point:
         self.isUsed = False
 
     def __str__(self):
-        return "Point({}, {}) - {}".format(self.x, self.y, self.color)
+        return "Point({}, {}) - {} / {}".format(self.x, self.y, self.color, self.isUsed)
 
 
