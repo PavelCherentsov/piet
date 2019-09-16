@@ -1,3 +1,4 @@
+
 def _push(stack, e):
     stack.push(e)
 
