@@ -1,3 +1,4 @@
+#1
 import sys
 from modules.Direction import Direction
 from modules.Point import Point
