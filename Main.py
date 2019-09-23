@@ -33,14 +33,14 @@ def main(image):
 
     for x in range(im.width+2):
         for y in range(im.height+2):
-            image[x][y] = Point(x, y, image[x][y])
+            image[x][y] = Point(x, y, ColorDict[image[x][y]])
 
     i = Interpreter(image)
 
 
 def check_correct_image(pixel):
     if not(pixel in ColorDict):
-        print("Не корректная программа")
+        print("Некорректная программа")
         sys.exit(0)
 
 

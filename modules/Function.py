@@ -1,4 +1,3 @@
-
 def _push(stack, e):
     stack.push(e)
 
@@ -41,11 +40,36 @@ def _greater(stack):
         stack.push(0)
 
 
+def _duplicate(stack):
+    e = stack.pop()
+    stack.push(e)
+    stack.push(e)
+
+
+def _out_num(stack):
+    print(stack.pop())
+
+
+def _out_char(stack):
+    print(chr(stack.pop()))
+
+
+def _in_num(stack):
+    stack.push(input())
+
+
+def _in_char(stack):
+    stack.push(ord(input()))
+
+
+def _switch(stack, codel_chooser):
+    codel_chooser.switch(stack.pop())
+
+
+def _pointer(stack, direction_pointer):
+    direction_pointer.pointer(stack.pop())
+
+
 """
-pointer извлекает значение и поворачивает по часовой стрелке DP на данное число, против часовой стрелки, если число отрицательное.
-switch переключает CC требуемое число раз
-duplicate помещает копию верхнего значения стека в стек
 roll извлекает два значения из стека (n — верхнее, m — второе) и помещает верхнее значение стека на глубину m n раз. Вращение может быть обратным (n отрицательное), глубина не может быть отрицательным числом.
-in Читает число или символ в зависимости от того, что вы подразумеваете этой командой, и помещает значение в стек.
-out выводит число или символ.
 """
