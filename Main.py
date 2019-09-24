@@ -1,8 +1,6 @@
 import sys
-from modules.Direction import Direction
 from modules.Point import Point
-from modules.ColorTable import ColorTable, ColorDict
-from modules.Stack import Stack
+from modules.ColorTable import ColorDict
 from PIL import Image
 from modules.Interpreter import Interpreter
 
@@ -16,7 +14,7 @@ def main(image):
     for x in range(im.width+2):
         for y in range(im.height+2):
             if x == 0 or y == 0 or x == im.width+1 or y == im.height+1:
-                image[x].append('None')
+                image[x].append('0x000000')
             else:
                 r, g, b = rgb_im.getpixel((x-1, y-1))
                 r = hex(r)
@@ -35,7 +33,7 @@ def main(image):
         for y in range(im.height+2):
             image[x][y] = Point(x, y, ColorDict[image[x][y]])
 
-    i = Interpreter(image)
+    Interpreter(image)
 
 
 def check_correct_image(pixel):

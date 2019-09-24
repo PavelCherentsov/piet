@@ -1,3 +1,5 @@
+from .Function import FunctionTable
+
 ColorTable = [
     ["light red", "light yellow", "light green", "light cyan", "light blue", "light magenta"],
     ["red", "yellow", "green", "cyan",  "blue", "magenta"],
@@ -27,3 +29,24 @@ ColorDict = {
         "0x000000": "black",
         "None": "None"
 }
+
+
+def getCommand(c1, c2):
+        c1_x = 0
+        c1_y = 0
+        c2_x = 0
+        c2_y = 0
+        for i in range(3):
+            for j in range(6):
+                    if ColorTable[i][j] == c1:
+                            c1_x = j
+                            c1_y = i
+                    if ColorTable[i][j] == c2:
+                            c2_x = j
+                            c2_y = i
+        if c2_x - c1_x < 0:
+                c2_x += 6
+        if c2_y-c1_y < 0:
+                c2_y+=3
+        return FunctionTable[c2_x - c1_x][c2_y-c1_y]
+
