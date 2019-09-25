@@ -21,7 +21,7 @@
 
 
 ## Графическая версия
-Справка по запуску: `py piet_interp.py --help` НЕТ
+Справка по запуску: `py piet_interp.py --help`
 
 Пример запуска: `py piet_interp.py HelloWorld.png`
 

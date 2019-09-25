@@ -36,8 +36,6 @@ def main(image):
             if not (image[x][y].color in ['black', 'white']) and start_y == 0:
                 start_x = x
                 start_y = y
-
-
     Interpreter(image, start_x, start_y)
 
 
@@ -48,4 +46,10 @@ def check_correct_image(pixel):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    if len(sys.argv) == 2:
+        if sys.argv[1] == 'help':
+            print('\nПример запуска: `py piet_interp.py HelloWorld.png`')
+        else:
+            main(sys.argv[1])
+    else:
+        print('\nПример запуска: `py piet_interp.py HelloWorld.png`')
