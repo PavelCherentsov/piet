@@ -5,7 +5,7 @@ from .CodelChooser import CodelChooser
 from .Direction import Direction
 from .DirectionPointer import DirectionPointer
 from .Point import Point
-from .ColorTable import getCommand
+from .ColorTable import get_command
 from .Stack import Stack
 
 directionPoints = [(1, 0), (-1, 0), (0, 1), (0, -1)]
@@ -25,11 +25,11 @@ class Interpreter:
         while True:
             start_white = []
             self.initialize_block()
-            k=0
-            while (k != 8):
+            k = 0
+            while k != 8:
                 next_pixel = self.init_next_pixel()
                 if next_pixel.color == 'black':
-                    k+=1
+                    k += 1
                     self.codel_chooser.switch(1)
                     next_pixel = self.init_next_pixel()
                     if next_pixel.color == 'black':
@@ -77,11 +77,8 @@ class Interpreter:
             self.x = next_pixel.x
             self.y = next_pixel.y
             if start_white == []:
-                command = getCommand(self.previous_color, next_pixel.color)
+                command = get_command(self.previous_color, next_pixel.color)
                 command.__call__(self)
-
-
-
 
     def initialize_block(self):
         stack = []

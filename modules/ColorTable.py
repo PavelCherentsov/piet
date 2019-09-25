@@ -1,4 +1,5 @@
 from .Function import FunctionTable
+from .Point import Point
 
 ColorTable = [
     ["light red", "light yellow", "light green", "light cyan", "light blue", "light magenta"],
@@ -31,7 +32,7 @@ ColorDict = {
 }
 
 
-def getCommand(c1, c2):
+def get_command(c1, c2):
         c1_x = 0
         c1_y = 0
         c2_x = 0
