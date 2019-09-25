@@ -47,9 +47,9 @@ def check_correct_image(pixel):
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
-        if sys.argv[1] == 'help':
+        if sys.argv[1] == '--help':
             print('\nПример запуска: `py piet_interp.py HelloWorld.png`')
         else:
             main(sys.argv[1])
     else:
-        print('\nПример запуска: `py piet_interp.py HelloWorld.png`')
+        print('\nСправка по запуску: `py piet_interp.py --help``')
