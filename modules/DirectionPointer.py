@@ -8,4 +8,5 @@ class DirectionPointer:
     def pointer(self, k):
         while k < 0:
             k += 4
-        self.direction = Direction[k % 4]
+        self.direction = Direction[(Direction.index(self.direction) + k) % 4]
+

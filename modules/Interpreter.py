@@ -12,9 +12,9 @@ directionPoints = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
 
 class Interpreter:
-    def __init__(self, image):
-        self.x = 1
-        self.y = 1
+    def __init__(self, image, x, y):
+        self.x = x
+        self.y = y
         self.direction_pointer = DirectionPointer()
         self.codel_chooser = CodelChooser()
         self.points = image
@@ -23,6 +23,7 @@ class Interpreter:
         self.stack = Stack()
         self.block = []
         while True:
+            start_white = []
             self.initialize_block()
             k=0
             while (k != 8):
@@ -39,11 +40,45 @@ class Interpreter:
                 else:
                     break
             if k == 8:
-                print("end")
+                sys.exit(0)
+            if next_pixel.color == 'white':
+                while next_pixel.color == 'white':
+                    if self.direction_pointer.direction == Direction[0]:
+                        if self.points[next_pixel.x + 1][next_pixel.y].color == 'black':
+                            self.direction_pointer.pointer(1)
+                            self.codel_chooser.switch(1)
+                        else:
+                            start_white.append(next_pixel)
+                            next_pixel = self.points[next_pixel.x + 1][next_pixel.y]
+                    elif self.direction_pointer.direction == Direction[1]:
+                        if self.points[next_pixel.x][next_pixel.y+1].color == 'black':
+                            self.direction_pointer.pointer(1)
+                            self.codel_chooser.switch(1)
+                        else:
+                            start_white.append(next_pixel)
+                            next_pixel = self.points[next_pixel.x][next_pixel.y + 1]
+                    elif self.direction_pointer.direction == Direction[2]:
+                        if self.points[next_pixel.x - 1][next_pixel.y].color == 'black':
+                            self.direction_pointer.pointer(1)
+                            self.codel_chooser.switch(1)
+                        else:
+                            start_white.append(next_pixel)
+                            next_pixel = self.points[next_pixel.x - 1][next_pixel.y]
+                    elif self.direction_pointer.direction == Direction[3]:
+                        if self.points[next_pixel.x][next_pixel.y - 1].color == 'black':
+                            self.direction_pointer.pointer(1)
+                            self.codel_chooser.switch(1)
+                        else:
+                            start_white.append(next_pixel)
+                            next_pixel = self.points[next_pixel.x][next_pixel.y - 1]
+                    if next_pixel in start_white:
+                        sys.exit(0)
+
             self.x = next_pixel.x
             self.y = next_pixel.y
-            command = getCommand(self.previous_color, next_pixel.color)
-            command.__call__(self)
+            if start_white == []:
+                command = getCommand(self.previous_color, next_pixel.color)
+                command.__call__(self)
 
 
 

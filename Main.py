@@ -3,12 +3,15 @@ from modules.Point import Point
 from modules.ColorTable import ColorDict
 from PIL import Image
 from modules.Interpreter import Interpreter
+from modules.Direction import Direction
 
 
 def main(image):
     im = Image.open(image)
     rgb_im = im.convert('RGB')
     image = []
+    start_x = 0
+    start_y = 0
     for x in range(im.width+2):
         image.append([])
     for x in range(im.width+2):
@@ -28,12 +31,15 @@ def main(image):
                     b = b[:2] + "0" + b[2]
                 check_correct_image(r[0:2]+(r[2:] + g[2:] + b[2:]).upper())
                 image[x].append(r[0:2]+(r[2:] + g[2:] + b[2:]).upper())
-
     for x in range(im.width+2):
         for y in range(im.height+2):
             image[x][y] = Point(x, y, ColorDict[image[x][y]])
+            if not (image[x][y].color in ['black', 'white']) and start_y == 0:
+                start_x = x
+                start_y = y
 
-    Interpreter(image)
+
+    Interpreter(image, start_x, start_y)
 
 
 def check_correct_image(pixel):

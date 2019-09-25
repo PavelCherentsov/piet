@@ -47,11 +47,11 @@ def _duplicate(i):
 
 
 def _out_num(i):
-    print(i.stack.pop())
+    print(i.stack.pop(),sep=' ', end='', flush=True)
 
 
 def _out_char(i):
-    print(chr(i.stack.pop()))
+    print(chr(i.stack.pop()), sep=' ', end='', flush=True)
 
 
 def _in_num(i):
