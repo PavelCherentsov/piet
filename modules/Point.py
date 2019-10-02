@@ -3,9 +3,12 @@ class Point:
         self.x = x
         self.y = y
         self.color = color
-        self.isUsed = False
+        self.is_used = False
+
+    def __rmul__(self, other):
+        return Point(other * self.x, other * self.y, self.color)
 
     def __str__(self):
-        return "Point({}, {}) - {} / {}".format(self.x, self.y, self.color, self.isUsed)
-
-
+        return "Point: ({},{}) color: {}".format(self.x,
+                                                 self.y,
+                                                 self.color)

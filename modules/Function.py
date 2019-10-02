@@ -11,7 +11,9 @@ def _add(i):
 
 
 def _subtract(i):
-    i.stack.push(i.stack.pop() - i.stack.pop())
+    x = i.stack.pop()
+    y = i.stack.pop()
+    i.stack.push(y - x)
 
 
 def _multiply(i):
@@ -19,11 +21,17 @@ def _multiply(i):
 
 
 def _divide(i):
-    i.stack.push(i.stack.pop() / i.stack.pop())
+    x = i.stack.pop()
+    y = i.stack.pop()
+    i.stack.push(y / x)
 
 
-def _mod (i):
-    i.stack.push(i.stack.pop() % i.stack.pop())
+def _mod(i):
+    x = i.stack.pop()
+    y = i.stack.pop()
+    while y <= 0:
+        y += x
+    i.stack.push(y % x)
 
 
 def _not(i):
@@ -34,7 +42,9 @@ def _not(i):
 
 
 def _greater(i):
-    if i.stack.pop() < i.stack.pop():
+    x = i.stack.pop()
+    y = i.stack.pop()
+    if y > x:
         i.stack.push(1)
     else:
         i.stack.push(0)
@@ -47,11 +57,15 @@ def _duplicate(i):
 
 
 def _out_num(i):
-    print(i.stack.pop(),sep=' ', end='', flush=True)
+    e = i.stack.pop()
+    print(e, sep=' ', end='', flush=True)
+    i.out += str(e)
 
 
 def _out_char(i):
-    print(chr(i.stack.pop()), sep=' ', end='', flush=True)
+    e = chr(i.stack.pop())
+    print(e, sep=' ', end='', flush=True)
+    i.out += e
 
 
 def _in_num(i):
@@ -71,10 +85,11 @@ def _pointer(i):
 
 
 def _roll(i):
-    """
-    roll извлекает два значения из стека (n — верхнее, m — второе) и помещает верхнее значение стека на глубину m n раз.
-    Вращение может быть обратным (n отрицательное), глубина не может быть отрицательным числом.
-    """
+    num = i.stack.stack.pop()
+    depth = i.stack.stack.pop()
+    num %= depth
+    x = -abs(num) + depth * (num < 0)
+    i.stack.stack[-depth:] = i.stack.stack[x:] + i.stack.stack[-depth:x]
 
 
 FunctionTable = [[None, _push, _pop],
@@ -83,4 +98,3 @@ FunctionTable = [[None, _push, _pop],
                  [_greater, _pointer, _switch],
                  [_duplicate, _roll, _in_num],
                  [_in_char, _out_num, _out_char]]
-
