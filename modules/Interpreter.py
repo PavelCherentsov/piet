@@ -1,5 +1,4 @@
 from math import inf
-import sys
 
 from .CodelChooser import CodelChooser
 from .Direction import Direction
@@ -9,11 +8,11 @@ from .ColorTable import get_command
 from .Stack import Stack
 from .ColorTable import ColorDict
 
-directionPoints = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+DIR_POINTS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
 
 class Interpreter:
-    def __init__(self, image, is_test=False, trace=False):
+    def __init__(self, image):
         self.direction_pointer = DirectionPointer()
         self.codel_chooser = CodelChooser()
         self.previous_value = None
@@ -24,37 +23,34 @@ class Interpreter:
         self.x = 0
         self.y = 0
         self.out = ""
+        self.start_white = []
+        self.init_image_map(image)
+        self.find_start_point(image)
+        self.command = None
+        self.l = len(self.image_map)
 
-        if not is_test:
-            self.init_image_map(image)
-            self.find_start_point(image)
-            while True:
-                self.initialize_block()
-                next_pixel = self.check_end_program()
-                if next_pixel is None:
-                    break
-                next_pixel = self.go_white(next_pixel)
-                if next_pixel is None:
-                    break
-                self.x = next_pixel.x
-                self.y = next_pixel.y
+    def start(self):
+        self.initialize_block()
+        next_pixel = self.check_end_program()
+        if next_pixel is None:
+            return False
+        next_pixel = self.go_white(next_pixel)
+        if next_pixel is None:
+            return False
+        self.x = next_pixel.x
+        self.y = next_pixel.y
 
-                if not self.start_white:
-                    command = get_command(self.previous_color,
-                                          next_pixel.color)
-                    command(self)
-                    if trace:
-                        input()
-                        print(next_pixel)
-                        print(self.stack)
-                        print("Function: " + command.__str__())
-                        print("Output: " + self.out)
+        if not self.start_white:
+            self.command = get_command(self.previous_color,
+                                       next_pixel.color)
+            self.command(self)
+        return True
 
     def go_white(self, next_pixel):
         self.start_white = []
         if next_pixel.color == 'white':
             while next_pixel.color == 'white':
-                if self.direction_pointer.direction == Direction[0]:
+                if self.direction_pointer.direction == Direction.RIGHT:
                     if self.image_map[next_pixel.x + 1][next_pixel.y] .color \
                             == 'black':
                         self.direction_pointer.pointer(1)
@@ -63,7 +59,7 @@ class Interpreter:
                         self.start_white.append(next_pixel)
                         next_pixel \
                             = self.image_map[next_pixel.x + 1][next_pixel.y]
-                elif self.direction_pointer.direction == Direction[1]:
+                elif self.direction_pointer.direction == Direction.DOWN:
                     if self.image_map[next_pixel.x][next_pixel.y + 1].color \
                             == 'black':
                         self.direction_pointer.pointer(1)
@@ -72,7 +68,7 @@ class Interpreter:
                         self.start_white.append(next_pixel)
                         next_pixel \
                             = self.image_map[next_pixel.x][next_pixel.y + 1]
-                elif self.direction_pointer.direction == Direction[2]:
+                elif self.direction_pointer.direction == Direction.LEFT:
                     if self.image_map[next_pixel.x - 1][next_pixel.y].color \
                             == 'black':
                         self.direction_pointer.pointer(1)
@@ -81,7 +77,7 @@ class Interpreter:
                         self.start_white.append(next_pixel)
                         next_pixel \
                             = self.image_map[next_pixel.x - 1][next_pixel.y]
-                elif self.direction_pointer.direction == Direction[3]:
+                elif self.direction_pointer.direction == Direction.UP:
                     if self.image_map[next_pixel.x][next_pixel.y - 1].color \
                             == 'black':
                         self.direction_pointer.pointer(1)
@@ -154,7 +150,7 @@ class Interpreter:
         self.block.append(self.image_map[self.x][self.y])
         while stack:
             point = stack.pop()
-            for dp in directionPoints:
+            for dp in DIR_POINTS:
                 p = self.image_map[point.x + dp[0]][point.y + dp[1]]
                 if p.color == self.previous_color:
                     if not p.is_used:
@@ -179,13 +175,13 @@ class Interpreter:
             for p in self.block:
                 if f(p.x, best):
                     best = p.x
-            if self.codel_chooser.direction == Direction[2]:
+            if self.codel_chooser.direction == Direction.LEFT:
                 best_p = best_p
                 for p in self.block:
                     if p.x == best:
                         if f2(p.y, best_p.y):
                             best_p = p
-            if self.codel_chooser.direction == Direction[0]:
+            if self.codel_chooser.direction == Direction.RIGHT:
                 best_p = -1 * best_p
                 for p in self.block:
                     if p.x == best:
@@ -195,13 +191,13 @@ class Interpreter:
             for p in self.block:
                 if f(p.y, best):
                     best = p.y
-            if self.codel_chooser.direction == Direction[2]:
+            if self.codel_chooser.direction == Direction.LEFT:
                 best_p = best_p
                 for p in self.block:
                     if p.y == best:
                         if f2(p.x, best_p.x):
                             best_p = p
-            if self.codel_chooser.direction == Direction[0]:
+            if self.codel_chooser.direction == Direction.RIGHT:
                 best_p = -1*best_p
                 for p in self.block:
                     if p.y == best:
@@ -211,23 +207,23 @@ class Interpreter:
 
     def init_next_pixel(self):
 
-        if self.direction_pointer.direction == Direction[0]:
+        if self.direction_pointer.direction == Direction.RIGHT:
             best_p = self.find_next_point(-inf, True, Point(inf, inf, None),
                                           self.gr, self.less)
-        if self.direction_pointer.direction == Direction[1]:
+        if self.direction_pointer.direction == Direction.DOWN:
             best_p = self.find_next_point(-inf, False, Point(-inf, -inf, None),
                                           self.gr, self.gr)
-        if self.direction_pointer.direction == Direction[2]:
+        if self.direction_pointer.direction == Direction.LEFT:
             best_p = self.find_next_point(inf, True, Point(-inf, -inf, None),
                                           self.less, self.gr)
-        if self.direction_pointer.direction == Direction[3]:
+        if self.direction_pointer.direction == Direction.UP:
             best_p = self.find_next_point(inf, False, Point(inf, inf, None),
                                           self.less, self.less)
-        if self.direction_pointer.direction == Direction[0]:
+        if self.direction_pointer.direction == Direction.RIGHT:
             return self.image_map[best_p.x + 1][best_p.y]
-        if self.direction_pointer.direction == Direction[1]:
+        if self.direction_pointer.direction == Direction.DOWN:
             return self.image_map[best_p.x][best_p.y + 1]
-        if self.direction_pointer.direction == Direction[2]:
+        if self.direction_pointer.direction == Direction.LEFT:
             return self.image_map[best_p.x - 1][best_p.y]
-        if self.direction_pointer.direction == Direction[3]:
+        if self.direction_pointer.direction == Direction.UP:
             return self.image_map[best_p.x][best_p.y - 1]

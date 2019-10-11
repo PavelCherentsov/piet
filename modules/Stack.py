@@ -10,7 +10,16 @@ class Stack:
 
     def __str__(self):
         stack = ""
-        for e in self.stack:
-            stack += str(e) + ", "
+        if len(self.stack) <= 5:
+            for e in self.stack:
+                stack += str(e) + ", "
+        else:
+            stack += '... , '
+            i = 0
+            for e in self.stack:
+                i+=1
+                if len(self.stack) - i >= 5:
+                    continue
+                stack += str(e) + ", "
         stack = stack[:-2]
         return "Stack: [ {} ]".format(stack)

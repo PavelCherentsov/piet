@@ -3,9 +3,7 @@ from .Direction import Direction
 
 class DirectionPointer:
     def __init__(self):
-        self.direction = Direction[0]
+        self.direction = Direction.RIGHT
 
     def pointer(self, k):
-        while k < 0:
-            k += 4
-        self.direction = Direction[(Direction.index(self.direction) + k) % 4]
+        self.direction = Direction((self.direction.value + k) % 4)

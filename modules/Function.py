@@ -1,100 +1,98 @@
-def _push(i):
-    i.stack.push(i.previous_value)
+def _push(state):
+    state.stack.push(state.previous_value)
 
 
-def _pop(i):
-    return i.stack.pop()
+def _pop(state):
+    return state.stack.pop()
 
 
-def _add(i):
-    i.stack.push(i.stack.pop() + i.stack.pop())
+def _add(state):
+    state.stack.push(state.stack.pop() + state.stack.pop())
 
 
-def _subtract(i):
-    x = i.stack.pop()
-    y = i.stack.pop()
-    i.stack.push(y - x)
+def _subtract(state):
+    x = state.stack.pop()
+    y = state.stack.pop()
+    state.stack.push(y - x)
 
 
-def _multiply(i):
-    i.stack.push(i.stack.pop() * i.stack.pop())
+def _multiply(state):
+    state.stack.push(state.stack.pop() * state.stack.pop())
 
 
-def _divide(i):
-    x = i.stack.pop()
-    y = i.stack.pop()
-    i.stack.push(y / x)
+def _divide(state):
+    x = state.stack.pop()
+    y = state.stack.pop()
+    state.stack.push(y / x)
 
 
-def _mod(i):
-    x = i.stack.pop()
-    y = i.stack.pop()
+def _mod(state):
+    x = state.stack.pop()
+    y = state.stack.pop()
     while y <= 0:
         y += x
-    i.stack.push(y % x)
+    state.stack.push(y % x)
 
 
-def _not(i):
-    if i.stack.pop() == 0:
-        i.stack.push(1)
-    else:
-        i.stack.push(0)
+def _not(state):
+    value = int(state.stack.pop() == 0)
+    state.stack.push(value)
 
 
-def _greater(i):
-    x = i.stack.pop()
-    y = i.stack.pop()
+def _greater(state):
+    x = state.stack.pop()
+    y = state.stack.pop()
     if y > x:
-        i.stack.push(1)
+        state.stack.push(1)
     else:
-        i.stack.push(0)
+        state.stack.push(0)
 
 
-def _duplicate(i):
-    e = i.stack.pop()
-    i.stack.push(e)
-    i.stack.push(e)
+def _duplicate(state):
+    e = state.stack.pop()
+    state.stack.push(e)
+    state.stack.push(e)
 
 
-def _out_num(i):
-    e = i.stack.pop()
+def _out_num(state):
+    e = state.stack.pop()
     print(e, sep=' ', end='', flush=True)
-    i.out += str(e)
+    state.out += str(e)
 
 
-def _out_char(i):
-    e = chr(i.stack.pop())
+def _out_char(state):
+    e = chr(state.stack.pop())
     print(e, sep=' ', end='', flush=True)
-    i.out += e
+    state.out += e
 
 
-def _in_num(i):
-    i.stack.push(int(input()))
+def _in_num(state):
+    state.stack.push(int(input()))
 
 
-def _in_char(i):
-    i.stack.push(ord(input()))
+def _in_char(state):
+    state.stack.push(ord(input()))
 
 
-def _switch(i):
-    i.codel_chooser.switch(i.stack.pop())
+def _switch(state):
+    state.codel_chooser.switch(state.stack.pop())
 
 
-def _pointer(i):
-    i.direction_pointer.pointer(i.stack.pop())
+def _pointer(state):
+    state.direction_pointer.pointer(state.stack.pop())
 
 
-def _roll(i):
-    num = i.stack.stack.pop()
-    depth = i.stack.stack.pop()
+def _roll(state):
+    num = state.stack.stack.pop()
+    depth = state.stack.stack.pop()
     num %= depth
     x = -abs(num) + depth * (num < 0)
-    i.stack.stack[-depth:] = i.stack.stack[x:] + i.stack.stack[-depth:x]
+    state.stack.stack[-depth:] = state.stack.stack[x:] + state.stack.stack[-depth:x]
 
 
-FunctionTable = [[None, _push, _pop],
-                 [_add, _subtract, _multiply],
-                 [_divide, _mod, _not],
-                 [_greater, _pointer, _switch],
-                 [_duplicate, _roll, _in_num],
-                 [_in_char, _out_num, _out_char]]
+FUNCTION_TABLE = [[None, _push, _pop],
+                  [_add, _subtract, _multiply],
+                  [_divide, _mod, _not],
+                  [_greater, _pointer, _switch],
+                  [_duplicate, _roll, _in_num],
+                  [_in_char, _out_num, _out_char]]

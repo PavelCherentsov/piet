@@ -20,14 +20,14 @@ class GameTest(unittest.TestCase):
 
     def test_init_image_map(self):
         image = load_image("tests/programs/push.png")
-        i = Interpreter(image, True)
+        i = Interpreter(image)
         i.init_image_map(image)
         self.assertEqual(i.image_map[0][0].color, 'black')
         self.assertNotEqual(i.image_map[1][1].color, 'black')
 
     def test_init_start_point(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
-        i = Interpreter(image, True)
+        i = Interpreter(image)
         i.init_image_map(image)
         i.find_start_point(image)
         self.assertEqual(i.x, 1)
@@ -35,7 +35,7 @@ class GameTest(unittest.TestCase):
 
     def test_init_block(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
-        i = Interpreter(image, True)
+        i = Interpreter(image)
         i.init_image_map(image)
         i.find_start_point(image)
         i.initialize_block()
@@ -44,7 +44,7 @@ class GameTest(unittest.TestCase):
 
     def test_init_next_pixel(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
-        i = Interpreter(image, True)
+        i = Interpreter(image)
         i.init_image_map(image)
         i.find_start_point(image)
         i.initialize_block()
@@ -54,7 +54,7 @@ class GameTest(unittest.TestCase):
 
     def test_end_program(self):
         image = Image.open("tests/programs/black.png").convert('RGB')
-        i = Interpreter(image, True)
+        i = Interpreter(image)
         i.init_image_map(image)
         i.find_start_point(image)
         i.initialize_block()
@@ -64,7 +64,7 @@ class GameTest(unittest.TestCase):
 
     def test_white(self):
         image = Image.open("tests/programs/white.png").convert('RGB')
-        i = Interpreter(image, True)
+        i = Interpreter(image)
         i.init_image_map(image)
         i.x = 1
         i.y = 1
@@ -74,25 +74,25 @@ class GameTest(unittest.TestCase):
 
     def test_dp_pointer(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
-        i = Interpreter(image, True)
-        self.assertEqual(i.direction_pointer.direction, Direction[0])
+        i = Interpreter(image)
+        self.assertEqual(i.direction_pointer.direction, Direction(0))
         i.direction_pointer.pointer(1)
-        self.assertEqual(i.direction_pointer.direction, Direction[1])
+        self.assertEqual(i.direction_pointer.direction, Direction(1))
         i.direction_pointer.pointer(-1)
-        self.assertEqual(i.direction_pointer.direction, Direction[0])
+        self.assertEqual(i.direction_pointer.direction, Direction(0))
         i.direction_pointer.pointer(4)
-        self.assertEqual(i.direction_pointer.direction, Direction[0])
+        self.assertEqual(i.direction_pointer.direction, Direction(0))
 
     def test_cc_switch(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
-        i = Interpreter(image, True)
-        self.assertEqual(i.codel_chooser.direction, Direction[2])
+        i = Interpreter(image)
+        self.assertEqual(i.codel_chooser.direction, Direction(2))
         i.codel_chooser.switch(1)
-        self.assertEqual(i.codel_chooser.direction, Direction[0])
+        self.assertEqual(i.codel_chooser.direction, Direction(0))
         i.codel_chooser.switch(2)
-        self.assertEqual(i.codel_chooser.direction, Direction[0])
+        self.assertEqual(i.codel_chooser.direction, Direction(0))
         i.codel_chooser.switch(1)
-        self.assertEqual(i.codel_chooser.direction, Direction[2])
+        self.assertEqual(i.codel_chooser.direction, Direction(2))
 
     def test_point(self):
         p = Point(10, 5, 'black')
@@ -102,7 +102,10 @@ class GameTest(unittest.TestCase):
 
     def test_stack(self):
         s = Stack()
+        st = str(s)
+
         s.push(1)
+        st = str(s)
         self.assertEqual(s.pop(), 1)
         s.push(1)
         s.push(2)
@@ -123,7 +126,7 @@ class GameTest(unittest.TestCase):
 
     def test_functions(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
-        i = Interpreter(image, True)
+        i = Interpreter(image)
         i.previous_value = 23
         modules.Function._push(i)
         self.assertEqual(i.stack.pop(), 23)
@@ -200,37 +203,37 @@ class GameTest(unittest.TestCase):
         modules.Function._push(i)
         modules.Function._switch(i)
         self.assertEqual(i.stack.stack, [])
-        self.assertEqual(i.codel_chooser.direction, Direction[0])
+        self.assertEqual(i.codel_chooser.direction, Direction.RIGHT)
         i.previous_value = 110
         modules.Function._push(i)
         modules.Function._switch(i)
         self.assertEqual(i.stack.stack, [])
-        self.assertEqual(i.codel_chooser.direction, Direction[0])
+        self.assertEqual(i.codel_chooser.direction, Direction.RIGHT)
         i.previous_value = 111
         modules.Function._push(i)
         modules.Function._switch(i)
         self.assertEqual(i.stack.stack, [])
-        self.assertEqual(i.codel_chooser.direction, Direction[2])
+        self.assertEqual(i.codel_chooser.direction, Direction.LEFT)
         i.previous_value = 40
         modules.Function._push(i)
         modules.Function._pointer(i)
         self.assertEqual(i.stack.stack, [])
-        self.assertEqual(i.direction_pointer.direction, Direction[0])
+        self.assertEqual(i.direction_pointer.direction, Direction.RIGHT)
         i.previous_value = 41
         modules.Function._push(i)
         modules.Function._pointer(i)
         self.assertEqual(i.stack.stack, [])
-        self.assertEqual(i.direction_pointer.direction, Direction[1])
+        self.assertEqual(i.direction_pointer.direction, Direction.DOWN)
         i.previous_value = 41
         modules.Function._push(i)
         modules.Function._pointer(i)
         self.assertEqual(i.stack.stack, [])
-        self.assertEqual(i.direction_pointer.direction, Direction[2])
+        self.assertEqual(i.direction_pointer.direction, Direction.LEFT)
         i.previous_value = 42
         modules.Function._push(i)
         modules.Function._pointer(i)
         self.assertEqual(i.stack.stack, [])
-        self.assertEqual(i.direction_pointer.direction, Direction[0])
+        self.assertEqual(i.direction_pointer.direction, Direction.RIGHT)
         i.stack.stack = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 5, 3]
         modules.Function._roll(i)
         self.assertEqual(i.stack.stack[0], 1)
