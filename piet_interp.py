@@ -29,9 +29,16 @@ class Example(QWidget):
         label.setPixmap(qpm)
         label.setGeometry(50, 50, qpm.width(), qpm.height())
 
+        print("Введите цифру режима работы программы:")
+        print("0 - Программа не работает с некорректным изображением")
+        print("1 - Некорректные пиксели заменяются на белые")
+        print("2 - Некорректные пиксели заменяются на черные ")
+        mode = int(input())
+
         self.interpreter = Interpreter(
-            self.load_image(self.image), self.codel_size)
-        self.dx = (WINDOW_WIDTH // 2) / (self.interpreter.l - 2)
+            self.load_image(self.image), self.codel_size, mode)
+
+        self.dx = (WINDOW_WIDTH // 2) / (len(self.interpreter.image_map) - 2)
 
         button_run = QPushButton('Run', self)
         button_run.setCheckable(True)

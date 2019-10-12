@@ -1,7 +1,5 @@
 from math import inf
 import sys
-import math
-from PIL import Image
 
 from .CodelChooser import CodelChooser
 from .Direction import Direction
@@ -15,21 +13,30 @@ DIR_POINTS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
 
 class Interpreter:
-    def __init__(self, image, codel_size):
+    def __init__(self, image, codel_size, mode):
         self.direction_pointer = DirectionPointer()
         self.codel_chooser = CodelChooser()
         self.previous_value = None
         self.previous_color = None
         self.stack = Stack()
         self.block = []
+        self.mode = mode
+        self.x = 0
+        self.y = 0
         self.image_map = []
         self.out = ""
         self.start_white = []
-        self.init_image_map(image, codel_size)
-        self.init_image_map_auto(image)
+        good_codel_size = self.init_image_map_auto(image)
+        if codel_size == 0:
+            self.init_image_map(image, good_codel_size.pop())
+        elif codel_size in good_codel_size:
+            self.init_image_map(image, codel_size)
+        else:
+            print("Неккоректный размер кодела")
+            exit(-1)
         self.find_start_point(self.image_map)
         self.command = None
-        self.l = len(self.image_map)
+
 
     def start(self):
         self.initialize_block()
@@ -94,15 +101,13 @@ class Interpreter:
 
     def check_end_program(self):
         k = 0
-
+        next_pixel = None
         while k != 8:
             next_pixel = self.init_next_pixel()
-            print(next_pixel)
             if next_pixel.color == 'black':
                 k += 1
                 self.codel_chooser.switch(1)
                 next_pixel = self.init_next_pixel()
-                print(next_pixel)
                 if next_pixel.color == 'black':
                     self.direction_pointer.pointer(1)
                     k += 1
@@ -116,48 +121,29 @@ class Interpreter:
 
     def init_image_map_auto(self, rgb_im):
         k = 1
-        flag = False
-        while True:
+        result = []
+        while k <= min(rgb_im.height, rgb_im.width):
+            flag = False
             if rgb_im.width % k == 0 and rgb_im.height % k == 0:
                 for x in range(rgb_im.width):
                     for y in range(rgb_im.height):
                         if x % k == 0 and y % k == 0:
-                            r, g, b = rgb_im.getpixel((x, y))
-                            r = hex(r)
-                            g = hex(g)
-                            b = hex(b)
-                            if len(r) == 3:
-                                r = r[:2] + "0" + r[2]
-                            if len(g) == 3:
-                                g = g[:2] + "0" + g[2]
-                            if len(b) == 3:
-                                b = b[:2] + "0" + b[2]
-                            color = "0x" + (r[2:] + g[2:] + b[2:]).upper()
+                            color = self.get_rgb(rgb_im, x, y)
                             for i in range(k):
                                 for j in range(k):
-                                    r, g, b = rgb_im.getpixel((x+i, y+j))
-                                    r = hex(r)
-                                    g = hex(g)
-                                    b = hex(b)
-                                    if len(r) == 3:
-                                        r = r[:2] + "0" + r[2]
-                                    if len(g) == 3:
-                                        g = g[:2] + "0" + g[2]
-                                    if len(b) == 3:
-                                        b = b[:2] + "0" + b[2]
-                                    color1 = "0x" + (r[2:] + g[2:] + b[2:]).upper()
+                                    color1 = self.get_rgb(rgb_im, x + i, y + j)
                                     if color != color1:
                                         flag = True
-                            result = k
-            if flag:
-                break
-            k += 1
-        print(math.sqrt(k))
+                if not flag:
+                    result.append(k)
 
+            k += 1
+        return result
 
     def init_image_map(self, rgb_im, codel_size):
+        self.image_map = []
         if rgb_im.width % codel_size != 0 or rgb_im.height % codel_size != 0:
-            print("Неерный размер кодела. Попробуйте другой.")
+            print("Неверный размер кодела. Попробуйте другой.")
             sys.exit(-1)
         w = rgb_im.width // codel_size
         h = rgb_im.height // codel_size
@@ -171,20 +157,36 @@ class Interpreter:
                                                    y,
                                                    ColorDict['0x000000']))
                 else:
-                    r, g, b = rgb_im.getpixel(((x - 1) * codel_size,
-                                               (y - 1) * codel_size))
-                    r = hex(r)
-                    g = hex(g)
-                    b = hex(b)
-                    if len(r) == 3:
-                        r = r[:2] + "0" + r[2]
-                    if len(g) == 3:
-                        g = g[:2] + "0" + g[2]
-                    if len(b) == 3:
-                        b = b[:2] + "0" + b[2]
-                    rgb = "0x" + (r[2:] + g[2:] + b[2:]).upper()
-                    self.image_map[x].append(
-                        Point(x//codel_size+1, y//codel_size+1, ColorDict[rgb]))
+                    rgb = self.get_rgb(rgb_im,
+                                       (x - 1) * codel_size,
+                                       (y - 1) * codel_size)
+                    if not (rgb in ColorDict.keys()):
+                        if self.mode == 0:
+                            print("Неккоректный пиксель: ({}, {})".format(x,
+                                                                          y))
+                            exit(-1)
+                        if self.mode == 1:
+                            self.image_map[x].append(
+                                Point(x, y, 'white'))
+                        if self.mode == 2:
+                            self.image_map[x].append(
+                                Point(x, y, 'black'))
+
+                    else:
+                        self.image_map[x].append(
+                            Point(x, y, ColorDict[rgb]))
+
+    @staticmethod
+    def get_rgb(rgb_im, x, y):
+        r, g, b = rgb_im.getpixel((x, y))
+        res = []
+        rgb = [r, g, b]
+        for e in rgb:
+            if len(hex(e)) == 3:
+                res.append(hex(e)[:2] + "0" + hex(e)[2])
+            else:
+                res.append(hex(e))
+        return "0x" + (res[0][2:] + res[1][2:] + res[2][2:]).upper()
 
     def find_start_point(self, image_map):
         for y in range(len(image_map)):
@@ -259,7 +261,7 @@ class Interpreter:
         return best_p
 
     def init_next_pixel(self):
-
+        best_p = None
         if self.direction_pointer.direction == Direction.RIGHT:
             best_p = self.find_next_point(-inf, True, Point(inf, inf, None),
                                           self.gr, self.less)
@@ -272,8 +274,6 @@ class Interpreter:
         if self.direction_pointer.direction == Direction.UP:
             best_p = self.find_next_point(inf, False, Point(inf, inf, None),
                                           self.less, self.less)
-        print("bp")
-        print(best_p)
         if self.direction_pointer.direction == Direction.RIGHT:
             return self.image_map[best_p.x + 1][best_p.y]
         if self.direction_pointer.direction == Direction.DOWN:
