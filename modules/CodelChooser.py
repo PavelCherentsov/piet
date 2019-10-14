@@ -11,4 +11,3 @@ class CodelChooser:
                 self.direction = Direction.LEFT
             else:
                 self.direction = Direction.RIGHT
-

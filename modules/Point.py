@@ -7,8 +7,3 @@ class Point:
 
     def __rmul__(self, other):
         return Point(other * self.x, other * self.y, self.color)
-
-    def __str__(self):
-        return "Point: ({},{}): color: {}".format(self.x,
-                                                 self.y,
-                                                 self.color)

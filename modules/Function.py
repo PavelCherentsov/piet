@@ -87,7 +87,8 @@ def _roll(state):
     depth = state.stack.stack.pop()
     num %= depth
     x = -abs(num) + depth * (num < 0)
-    state.stack.stack[-depth:] = state.stack.stack[x:] + state.stack.stack[-depth:x]
+    state.stack.stack[-depth:] = \
+        state.stack.stack[x:] + state.stack.stack[-depth:x]
 
 
 FUNCTION_TABLE = [[None, _push, _pop],

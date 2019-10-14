@@ -1,5 +1,5 @@
 # Интерпретатор Piet
-Версия 0.2.1
+Версия 0.3.0
 
 Автор: Черенцов Павел (pavelcherentsov23@gmail.com)
 
@@ -32,7 +32,7 @@
 ## Подробности реализации
 Модули, отвечающие за работу интерпретатора, расположены в пакете modules.
 На данные модули (`modules`) написаны тесты, их можно найти в `tests/`.
-Покрытие по строкам составляет около 84%:
+Покрытие по строкам составляет около 97%:
 
     Name                          Stmts   Miss  Cover
     -------------------------------------------------
@@ -41,13 +41,13 @@
     modules\Direction.py              6      0   100%
     modules\DirectionPointer.py       6      0   100%
     modules\Function.py              58      2    97%
-    modules\Interpreter.py          186     17    91%
-    modules\Point.py                 10      1    90%
-    modules\Stack.py                 21      7    67%
-    piet_interp.py                   82     69    16%
-    tests\test_all.py               228      1    99%
+    modules\Interpreter.py          224     15    93%
+    modules\Point.py                  8      0   100%
+    modules\Stack.py                 21      0   100%
+    tests\test_all.py               282      1    99%
     -------------------------------------------------
-    TOTAL                           623     97    84%
+    TOTAL                           631     18    97%
+
 
     
     

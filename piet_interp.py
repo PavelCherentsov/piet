@@ -3,6 +3,7 @@ from modules.Interpreter import Interpreter
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton
 from PyQt5.QtGui import QIcon, QPixmap, QFont
 import sys
+import argparse
 
 
 WINDOW_WIDTH = 0
@@ -10,10 +11,11 @@ WINDOW_HEIGHT = 0
 
 
 class Example(QWidget):
-    def __init__(self, image, codel_size):
+    def __init__(self, image, codel_size, mode):
         super().__init__()
         self.image = image
         self.codel_size = codel_size
+        self.mode = mode
         self.initUI()
 
     def initUI(self):
@@ -29,14 +31,8 @@ class Example(QWidget):
         label.setPixmap(qpm)
         label.setGeometry(50, 50, qpm.width(), qpm.height())
 
-        print("Введите цифру режима работы программы:")
-        print("0 - Программа не работает с некорректным изображением")
-        print("1 - Некорректные пиксели заменяются на белые")
-        print("2 - Некорректные пиксели заменяются на черные ")
-        mode = int(input())
-
         self.interpreter = Interpreter(
-            self.load_image(self.image), self.codel_size, mode)
+            self.load_image(self.image), self.codel_size, self.mode)
 
         self.dx = (WINDOW_WIDTH // 2) / (len(self.interpreter.image_map) - 2)
 
@@ -52,21 +48,21 @@ class Example(QWidget):
 
         self.info_stack = QLabel(self)
         self.info_stack.setText(str(self.interpreter.stack))
-        self.info_stack.setFont(QFont("Arial", 18))
+        self.info_stack.setFont(QFont("Arial", 14))
         self.info_stack.setMinimumWidth(1000)
         self.info_stack.setVisible(True)
         self.info_stack.move(WINDOW_WIDTH // 2 + 100, 100)
 
         self.info_function = QLabel(self)
         self.info_function.setText("Function: ")
-        self.info_function.setFont(QFont("Arial", 18))
+        self.info_function.setFont(QFont("Arial", 14))
         self.info_function.setMinimumWidth(1000)
         self.info_function.setVisible(True)
         self.info_function.move(WINDOW_WIDTH // 2 + 100, 50)
 
         self.info_output = QLabel(self)
         self.info_output.setText("Output: ")
-        self.info_output.setFont(QFont("Arial", 18))
+        self.info_output.setFont(QFont("Arial", 14))
         self.info_output.setMinimumWidth(1000)
         self.info_output.setVisible(True)
         self.info_output.move(WINDOW_WIDTH // 2 + 100, 150)
@@ -104,21 +100,24 @@ class Example(QWidget):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
-        if sys.argv[1] == '--help':
-            print('\nПример запуска программы: '
-                  '`py piet_interp.py HelloWorld.png`')
-        else:
-            image = sys.argv[1]
-            print("Введите размер кодела:")
-            codel_size = int(input())
-            app = QApplication(sys.argv)
-            screen = app.primaryScreen()
-            rect = screen.availableGeometry()
-            WINDOW_WIDTH = rect.width() - 200
-            WINDOW_HEIGHT = rect.height() - 100
-            e = Example(image, codel_size)
-            sys.exit(app.exec_())
-    else:
-        print('\nСправка по запуску: `py piet_interp.py --help``')
-
+    parser = argparse.ArgumentParser(description='Interpreter Piet.')
+    parser.add_argument('image', type=str,
+                        help='path to the picture (program Piet) '
+                             'relative to the file piet_interpr.py')
+    parser.add_argument('codel_size', type=int, default=0, nargs='?',
+                        help='width of one codel (or to automatically '
+                             'detect the codel, enter: 0)')
+    parser.add_argument('mode', type=int, metavar='mode', choices=[0, 1, 2],
+                        default=0, nargs='?',
+                        help='program operation mode: 0 - The program does '
+                             'not work with an undefined image, 1 - Invalid '
+                             'pixels are replaced with white, 2 - Invalid '
+                             'pixels are replaced with black')
+    args = parser.parse_args()
+    app = QApplication(sys.argv)
+    screen = app.primaryScreen()
+    rect = screen.availableGeometry()
+    WINDOW_WIDTH = rect.width() - 200
+    WINDOW_HEIGHT = rect.height() - 100
+    e = Example(args.image, args.codel_size, args.mode)
+    sys.exit(app.exec_())

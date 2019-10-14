@@ -1,34 +1,36 @@
 from .Function import FUNCTION_TABLE
+from .Color import Color
 
-COLORS = [
-    ["light red", "light yellow", "light green",
-     "light cyan", "light blue", "light magenta"],
-    ["red", "yellow", "green", "cyan",  "blue", "magenta"],
-    ["dark red", "dark yellow", "dark green",
-     "dark cyan", "dark blue", "dark magenta"],
+COLOR_TABLE = [
+    [Color.light_red, Color.light_yellow, Color.light_green,
+     Color.light_cyan, Color.light_blue, Color.light_magenta],
+    [Color.red, Color.yellow, Color.green,
+     Color.cyan,  Color.blue, Color.magenta],
+    [Color.dark_red, Color.dark_yellow, Color.dark_green,
+     Color.dark_cyan, Color.dark_blue, Color.dark_magenta],
 ]
 
-ColorDict = {
-    "0xFFC0C0": "light red",
-    "0xFFFFC0": "light yellow",
-    "0xC0FFC0": "light green",
-    "0xC0FFFF": "light cyan",
-    "0xC0C0FF": "light blue",
-    "0xFFC0FF": "light magenta",
-    "0xFF0000": "red",
-    "0xFFFF00": "yellow",
-    "0x00FF00": "green",
-    "0x00FFFF": "cyan",
-    "0x0000FF": "blue",
-    "0xFF00FF": "magenta",
-    "0xC00000": "dark red",
-    "0xC0C000": "dark yellow",
-    "0x00C000": "dark green",
-    "0x00C0C0": "dark cyan",
-    "0x0000C0": "dark blue",
-    "0xC000C0": "dark magenta",
-    "0xFFFFFF": "white",
-    "0x000000": "black",
+COLORS = {
+    "0xFFC0C0": Color.light_red,
+    "0xFFFFC0": Color.light_yellow,
+    "0xC0FFC0": Color.light_green,
+    "0xC0FFFF": Color.light_cyan,
+    "0xC0C0FF": Color.light_blue,
+    "0xFFC0FF": Color.light_magenta,
+    "0xFF0000": Color.red,
+    "0xFFFF00": Color.yellow,
+    "0x00FF00": Color.green,
+    "0x00FFFF": Color.cyan,
+    "0x0000FF": Color.blue,
+    "0xFF00FF": Color.magenta,
+    "0xC00000": Color.dark_red,
+    "0xC0C000": Color.dark_yellow,
+    "0x00C000": Color.dark_green,
+    "0x00C0C0": Color.dark_cyan,
+    "0x0000C0": Color.dark_blue,
+    "0xC000C0": Color.dark_magenta,
+    "0xFFFFFF": Color.white,
+    "0x000000": Color.black,
     "None": "None"
 }
 
@@ -38,9 +40,9 @@ def get_command(c1, c2):
     (c2_x, c2_y) = (0, 0)
     for i in range(3):
         for j in range(6):
-            if COLORS[i][j] == c1:
+            if COLOR_TABLE[i][j] == c1:
                 (c1_x, c1_y) = (j, i)
-            if COLORS[i][j] == c2:
+            if COLOR_TABLE[i][j] == c2:
                 (c2_x, c2_y) = (j, i)
     if c2_x - c1_x < 0:
         c2_x += 6
