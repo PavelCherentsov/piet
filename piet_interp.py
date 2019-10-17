@@ -36,15 +36,14 @@ class Example(QWidget):
 
         self.dx = (WINDOW_WIDTH // 2) / (len(self.interpreter.image_map) - 2)
 
-        button_run = QPushButton('Run', self)
-        button_run.setCheckable(True)
-        button_run.move(WINDOW_WIDTH - 150, WINDOW_HEIGHT - 150)
-        button_run.clicked[bool].connect(self.main)
+        self.button_run = QPushButton('Run', self)
+        self.button_run.move(WINDOW_WIDTH - 150, WINDOW_HEIGHT - 150)
+        self.button_run.clicked[bool].connect(self.main)
 
-        button_next = QPushButton('Next Step', self)
-        button_next.setCheckable(True)
-        button_next.move(WINDOW_WIDTH - 150, WINDOW_HEIGHT - 100)
-        button_next.clicked[bool].connect(self.main_trace)
+        self.button_next = QPushButton('Next Step', self)
+        self.button_next.move(WINDOW_WIDTH - 150, WINDOW_HEIGHT - 100)
+        self.button_next.clicked[bool].connect(self.main_trace)
+
 
         self.info_stack = QLabel(self)
         self.info_stack.setText(str(self.interpreter.stack))
@@ -78,10 +77,15 @@ class Example(QWidget):
             if not self.interpreter.start():
                 break
             self.print_info()
+            self.button_run.setEnabled(False)
+            self.button_next.setEnabled(False)
 
     def main_trace(self):
-        self.interpreter.start()
+        if not self.interpreter.start():
+            self.button_run.setEnabled(False)
+            self.button_next.setEnabled(False)
         self.print_info()
+
 
     def load_image(self, image):
         return Image.open(image).convert('RGB')

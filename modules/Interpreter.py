@@ -35,8 +35,7 @@ class Interpreter:
         elif codel_size in good_codel_size:
             self.init_image_map(image, codel_size)
         else:
-            print("Неккоректный размер кодела")
-            exit(-1)
+            raise Exception("Invalid codel size")
         self.find_start_point(self.image_map)
         self.command = None
 
@@ -126,16 +125,14 @@ class Interpreter:
     def init_image_map(self, rgb_im, codel_size):
         self.image_map = []
         if rgb_im.width % codel_size != 0 or rgb_im.height % codel_size != 0:
-            print("Неверный размер кодела. Попробуйте другой.")
-            sys.exit(-1)
+            raise Exception("Invalid codel size")
         w = rgb_im.width // codel_size
         h = rgb_im.height // codel_size
         for x in range(w + 2):
             self.image_map.append([])
         for x in range(w + 2):
             for y in range(h + 2):
-                if x == 0 or y == 0 or x == w + 1 \
-                        or y == h + 1:
+                if (x in (0, w + 1)) or (y in (0, h + 1)):
                     self.image_map[x].append(
                         Point(x, y, Color.black))
                 else:
@@ -144,9 +141,8 @@ class Interpreter:
                                        (y - 1) * codel_size)
                     if not (rgb in COLORS.keys()):
                         if self.mode == 0:
-                            print("Неккоректный пиксель: ({}, {})"
-                                  .format(x, y))
-                            exit(-1)
+                            raise Exception(
+                                'Invalid Pixel: ({}, {})'.format(x, y))
                         if self.mode == 1:
                             self.image_map[x].append(
                                 Point(x, y, Color.white))

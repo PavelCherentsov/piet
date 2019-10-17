@@ -23,7 +23,7 @@ def _multiply(state):
 def _divide(state):
     x = state.stack.pop()
     y = state.stack.pop()
-    state.stack.push(y / x)
+    state.stack.push(y // x)
 
 
 def _mod(state):
