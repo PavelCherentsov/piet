@@ -5,7 +5,7 @@ COLOR_TABLE = [
     [Color.light_red, Color.light_yellow, Color.light_green,
      Color.light_cyan, Color.light_blue, Color.light_magenta],
     [Color.red, Color.yellow, Color.green,
-     Color.cyan,  Color.blue, Color.magenta],
+     Color.cyan, Color.blue, Color.magenta],
     [Color.dark_red, Color.dark_yellow, Color.dark_green,
      Color.dark_cyan, Color.dark_blue, Color.dark_magenta],
 ]

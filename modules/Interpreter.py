@@ -1,7 +1,6 @@
-from math import inf
+from math import inf, sqrt
 import operator
 import sys
-
 
 from .CodelChooser import CodelChooser
 from .Direction import Direction, DIRECTION_POINT
@@ -53,8 +52,27 @@ class Interpreter:
         if not self.start_white:
             self.command = get_command(self.previous_color,
                                        next_pixel.color)
-            self.command(self)
-        return True
+            return self.command(self)
+        else:
+            self.command = None
+            return True
+
+    @staticmethod
+    def gcd(a, b):
+        while b:
+            a, b = b, a % b
+        return a
+
+    @staticmethod
+    def divisor_generator(n):
+        large_divisors = []
+        for i in range(1, int(sqrt(n) + 1)):
+            if n % i == 0:
+                yield i
+                if i * i != n:
+                    large_divisors.append(n / i)
+        for divisor in reversed(large_divisors):
+            yield int(divisor)
 
     def go_white(self, next_pixel):
         self.start_white = []
@@ -97,21 +115,17 @@ class Interpreter:
         return next_pixel
 
     def init_image_map_auto(self, rgb_im):
-        k = 1
         result = []
-        while k <= min(rgb_im.height, rgb_im.width):
+        gcd = self.gcd(rgb_im.height, rgb_im.width)
+        for e in self.divisor_generator(gcd):
             flag = False
-            if rgb_im.width % k == 0 and rgb_im.height % k == 0:
-                for x in range(rgb_im.width):
-                    for y in range(rgb_im.height):
-                        if x % k == 0 and y % k == 0:
-                            color = self.get_rgb(rgb_im, x, y)
-                            flag = self.check_codel(k, rgb_im, x, y, color)
-
-                if not flag:
-                    result.append(k)
-
-            k += 1
+            for x in range(rgb_im.width):
+                for y in range(rgb_im.height):
+                    if x % e == 0 and y % e == 0:
+                        color = self.get_rgb(rgb_im, x, y)
+                        flag = self.check_codel(e, rgb_im, x, y, color)
+            if not flag:
+                result.append(e)
         return result
 
     def check_codel(self, k, rgb_im, x, y, color):
@@ -140,13 +154,13 @@ class Interpreter:
                                        (x - 1) * codel_size,
                                        (y - 1) * codel_size)
                     if not (rgb in COLORS.keys()):
-                        if self.mode == 0:
+                        if self.mode == 'ExecutionAnyway':
                             raise Exception(
                                 'Invalid Pixel: ({}, {})'.format(x, y))
-                        if self.mode == 1:
+                        if self.mode == 'ReplacementForWhite':
                             self.image_map[x].append(
                                 Point(x, y, Color.white))
-                        if self.mode == 2:
+                        if self.mode == 'ReplacementForBlack':
                             self.image_map[x].append(
                                 Point(x, y, Color.black))
 
@@ -161,10 +175,10 @@ class Interpreter:
         rgb = [r, g, b]
         for e in rgb:
             if len(hex(e)) == 3:
-                res.append(hex(e)[:2] + "0" + hex(e)[2])
+                res.append('{}0{}'.format(hex(e)[:2], hex(e)[2].upper()))
             else:
-                res.append(hex(e))
-        return "0x" + (res[0][2:] + res[1][2:] + res[2][2:]).upper()
+                res.append(hex(e).upper())
+        return '0x{}{}{}'.format(res[0][2:], res[1][2:], res[2][2:])
 
     def find_start_point(self, image_map):
         for y in range(len(image_map)):
@@ -219,11 +233,11 @@ class Interpreter:
         if self.direction_pointer.direction == Direction.RIGHT:
             best_p = self.find_next_point(-inf, 'x', 'y',
                                           Point(inf, inf, None),
-                                          operator.gt,  operator.lt)
+                                          operator.gt, operator.lt)
         if self.direction_pointer.direction == Direction.DOWN:
             best_p = self.find_next_point(-inf, 'y', 'x',
                                           Point(-inf, -inf, None),
-                                          operator.gt,  operator.gt)
+                                          operator.gt, operator.gt)
         if self.direction_pointer.direction == Direction.LEFT:
             best_p = self.find_next_point(inf, 'x', 'y',
                                           Point(-inf, -inf, None),

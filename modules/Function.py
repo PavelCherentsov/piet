@@ -1,5 +1,5 @@
 def _push(state):
-    state.stack.push(state.previous_value)
+    state.stack.push(str(state.previous_value))
 
 
 def _pop(state):
@@ -7,45 +7,45 @@ def _pop(state):
 
 
 def _add(state):
-    state.stack.push(state.stack.pop() + state.stack.pop())
+    state.stack.push(str(int(state.stack.pop()) + int(state.stack.pop())))
 
 
 def _subtract(state):
     x = state.stack.pop()
     y = state.stack.pop()
-    state.stack.push(y - x)
+    state.stack.push(str(int(y) - int(x)))
 
 
 def _multiply(state):
-    state.stack.push(state.stack.pop() * state.stack.pop())
+    state.stack.push(str(int(state.stack.pop()) * int(state.stack.pop())))
 
 
 def _divide(state):
     x = state.stack.pop()
     y = state.stack.pop()
-    state.stack.push(y // x)
+    state.stack.push(str(int(y) // int(x)))
 
 
 def _mod(state):
-    x = state.stack.pop()
-    y = state.stack.pop()
+    x = int(state.stack.pop())
+    y = int(state.stack.pop())
     while y <= 0:
         y += x
-    state.stack.push(y % x)
+    state.stack.push(str(y % x))
 
 
 def _not(state):
-    value = int(state.stack.pop() == 0)
-    state.stack.push(value)
+    value = int(int(state.stack.pop()) == 0)
+    state.stack.push(str(value))
 
 
 def _greater(state):
-    x = state.stack.pop()
-    y = state.stack.pop()
+    x = int(state.stack.pop())
+    y = int(state.stack.pop())
     if y > x:
-        state.stack.push(1)
+        state.stack.push('1')
     else:
-        state.stack.push(0)
+        state.stack.push('0')
 
 
 def _duplicate(state):
@@ -56,35 +56,35 @@ def _duplicate(state):
 
 def _out_num(state):
     e = state.stack.pop()
-    print(e, sep=' ', end='', flush=True)
     state.out += str(e)
+    return e
 
 
 def _out_char(state):
-    e = chr(state.stack.pop())
-    print(e, sep=' ', end='', flush=True)
+    e = chr(int(state.stack.pop()))
     state.out += e
+    return e
 
 
-def _in_num(state):
-    state.stack.push(int(input()))
+def _in_num(state):  # state.stack.push(int(input()))
+    pass
 
 
-def _in_char(state):
-    state.stack.push(ord(input()))
+def _in_char(state):  # state.stack.push(ord(input()))
+    pass
 
 
 def _switch(state):
-    state.codel_chooser.switch(state.stack.pop())
+    state.codel_chooser.switch(int(state.stack.pop()))
 
 
 def _pointer(state):
-    state.direction_pointer.pointer(state.stack.pop())
+    state.direction_pointer.pointer(int(state.stack.pop()))
 
 
 def _roll(state):
-    num = state.stack.stack.pop()
-    depth = state.stack.stack.pop()
+    num = int(state.stack.stack.pop())
+    depth = int(state.stack.stack.pop())
     num %= depth
     x = -abs(num) + depth * (num < 0)
     state.stack.stack[-depth:] = \

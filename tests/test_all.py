@@ -16,15 +16,31 @@ from modules.ColorTable import get_command
 from modules.Color import Color
 
 
-class InterpreterTest(unittest.TestCase):
-
-    def test_find_start_point(self):
-        image = Image.open("tests/programs/push.png").convert('RGB')
-        i = Interpreter(image, 1, 0)
-        i.init_image_map(image, 1)
+class InterpreterInputTest(unittest.TestCase):
+    def test_find_start_point2(self):
+        image = Image.open("tests/programs/HelloWorld4.png").convert('RGB')
+        i = Interpreter(image, 2, 0)
+        i.init_image_map(image, 2)
         i.find_start_point(i.image_map)
-        self.assertEqual(i.x, 1)
+        self.assertEqual(i.x, 3)
         self.assertEqual(i.y, 1)
+
+    def test_find_start_point4(self):
+        image = Image.open("tests/programs/HelloWorld4.png").convert('RGB')
+        i = Interpreter(image, 4, 0)
+        i.init_image_map(image, 4)
+        i.find_start_point(i.image_map)
+        self.assertEqual(i.x, 2)
+        self.assertEqual(i.y, 1)
+
+    def test_find_start_point_auto(self):
+        image = Image.open("tests/programs/HelloWorld4.png").convert('RGB')
+        i = Interpreter(image, 0, 0)
+        list = i.init_image_map_auto(image)
+        self.assertEqual(list, [1, 2, 4])
+
+
+class InterpreterValidTest(unittest.TestCase):
 
     def test_init_block(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
@@ -64,10 +80,6 @@ class InterpreterTest(unittest.TestCase):
         i = Interpreter(image, 1, 0)
         res = i.init_image_map_auto(image)
         self.assertEqual(res.pop(), 1)
-        image = Image.open("tests/programs/HelloWorld5.png").convert('RGB')
-        i = Interpreter(image, 1, 0)
-        res = i.init_image_map_auto(image)
-        self.assertEqual(res.pop(), 5)
 
     def test_init_next_pixel(self):
         image = Image.open("tests/programs/HelloWorld.png").convert('RGB')
@@ -98,6 +110,8 @@ class InterpreterTest(unittest.TestCase):
         p = i.go_white(Point(1, 1, Color.white))
         self.assertEqual(p, None)
 
+
+class InterpreterTest(unittest.TestCase):
     def test_dp_pointer(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
         i = Interpreter(image, 1, 0)
@@ -128,12 +142,9 @@ class InterpreterTest(unittest.TestCase):
 
     def test_stack(self):
         s = Stack()
-        str(s)
         s.push(1)
-        str(s)
         for r in range(10):
             s.push(1)
-        str(s)
         self.assertEqual(s.pop(), 1)
         s.push(1)
         s.push(2)
@@ -157,7 +168,7 @@ class InterpreterTest(unittest.TestCase):
         i = Interpreter(image, 1, 0)
         i.previous_value = 23
         modules.Function._push(i)
-        self.assertEqual(i.stack.pop(), 23)
+        self.assertEqual(i.stack.pop(), '23')
 
     def test_functions_pop(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
@@ -175,7 +186,7 @@ class InterpreterTest(unittest.TestCase):
         i.previous_value = 32
         modules.Function._push(i)
         modules.Function._add(i)
-        self.assertEqual(i.stack.pop(), 55)
+        self.assertEqual(i.stack.pop(), '55')
 
     def test_functions_sub(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
@@ -185,7 +196,7 @@ class InterpreterTest(unittest.TestCase):
         i.previous_value = 32
         modules.Function._push(i)
         modules.Function._subtract(i)
-        self.assertEqual(i.stack.pop(), -9)
+        self.assertEqual(i.stack.pop(), '-9')
 
     def test_functions_mul(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
@@ -195,7 +206,7 @@ class InterpreterTest(unittest.TestCase):
         i.previous_value = 8
         modules.Function._push(i)
         modules.Function._multiply(i)
-        self.assertEqual(i.stack.pop(), 56)
+        self.assertEqual(i.stack.pop(), '56')
 
     def test_functions_div(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
@@ -205,7 +216,7 @@ class InterpreterTest(unittest.TestCase):
         i.previous_value = 8
         modules.Function._push(i)
         modules.Function._divide(i)
-        self.assertEqual(i.stack.pop(), 5)
+        self.assertEqual(i.stack.pop(), '5')
 
     def test_functions_mod(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
@@ -215,13 +226,13 @@ class InterpreterTest(unittest.TestCase):
         i.previous_value = 3
         modules.Function._push(i)
         modules.Function._mod(i)
-        self.assertEqual(i.stack.pop(), 2)
+        self.assertEqual(i.stack.pop(), '2')
         i.previous_value = -2
         modules.Function._push(i)
         i.previous_value = 3
         modules.Function._push(i)
         modules.Function._mod(i)
-        self.assertEqual(i.stack.pop(), 1)
+        self.assertEqual(i.stack.pop(), '1')
 
     def test_functions_not(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
@@ -229,15 +240,15 @@ class InterpreterTest(unittest.TestCase):
         i.previous_value = 0
         modules.Function._push(i)
         modules.Function._not(i)
-        self.assertEqual(i.stack.pop(), 1)
+        self.assertEqual(i.stack.pop(), '1')
         i.previous_value = 23
         modules.Function._push(i)
         modules.Function._not(i)
-        self.assertEqual(i.stack.pop(), 0)
+        self.assertEqual(i.stack.pop(), '0')
         i.previous_value = 23
         modules.Function._push(i)
         modules.Function._not(i)
-        self.assertEqual(i.stack.pop(), 0)
+        self.assertEqual(i.stack.pop(), '0')
 
     def test_functions_gr(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
@@ -247,13 +258,13 @@ class InterpreterTest(unittest.TestCase):
         i.previous_value = 2
         modules.Function._push(i)
         modules.Function._greater(i)
-        self.assertEqual(i.stack.pop(), 0)
+        self.assertEqual(i.stack.pop(), '0')
         i.previous_value = 1
         modules.Function._push(i)
         i.previous_value = 0
         modules.Function._push(i)
         modules.Function._greater(i)
-        self.assertEqual(i.stack.pop(), 1)
+        self.assertEqual(i.stack.pop(), '1')
 
     def test_functions_duplicate(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
@@ -261,8 +272,8 @@ class InterpreterTest(unittest.TestCase):
         i.previous_value = 23
         modules.Function._push(i)
         modules.Function._duplicate(i)
-        self.assertEqual(i.stack.pop(), 23)
-        self.assertEqual(i.stack.pop(), 23)
+        self.assertEqual(i.stack.pop(), '23')
+        self.assertEqual(i.stack.pop(), '23')
 
     def test_functions_switch(self):
         image = Image.open("tests/programs/push.png").convert('RGB')
