@@ -139,7 +139,7 @@ class InterpreterTest(unittest.TestCase):
         stack.append(1)
         for r in range(10):
             stack.append(1)
-        self.assertEqual(s.pop(), 1)
+        self.assertEqual(stack.pop(), 1)
         stack.append(1)
         stack.append(2)
         stack.append(3)
