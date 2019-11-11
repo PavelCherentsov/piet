@@ -1,6 +1,22 @@
 from modules.components.Interpreter import Interpreter
 import argparse
 
+
+def start_console(interpreter):
+    while True:
+        point = interpreter.start()
+        if not interpreter.is_run:
+            break
+        if point is not None:
+            print(point, sep=' ', end='', flush=True)
+        if interpreter.is_in_num:
+            interpreter.stack.append(input())
+            interpreter.is_in_num = False
+        if interpreter.is_in_char:
+            interpreter.stack.append(str(ord(input())))
+            interpreter.is_in_char = False
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Interpreter Piet.')
     parser.add_argument('image', type=str,
@@ -19,11 +35,8 @@ if __name__ == "__main__":
                              '(otherwise - the console version '
                              'without debugging)')
     args = parser.parse_args()
-    if not args.trace:
-        from modules.console import start_console
-
-        start_console(Interpreter(args.image, args.codel_size, args.mode))
-    else:
-        from modules.window import start_window
-
+    if args.trace:
+        from modules.window import start_window as start_window
         start_window(Interpreter(args.image, args.codel_size, args.mode))
+    else:
+        start_console(Interpreter(args.image, args.codel_size, args.mode))

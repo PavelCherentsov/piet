@@ -5,10 +5,9 @@ import unittest
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              os.path.pardir))
 
-from modules.components.Point import Point
 from modules.components.Interpreter import (Interpreter, get_rgb, get_command,
                                             Function)
-from modules.components.Direction import Direction
+from modules.components.Direction import Direction, Point
 from modules.components.ColorTable import Color
 
 
@@ -136,15 +135,15 @@ class InterpreterTest(unittest.TestCase):
         self.assertEqual(p.y, -5)
 
     def test_stack(self):
-        s = []
-        s.append(1)
+        stack = list()
+        stack.append(1)
         for r in range(10):
-            s.append(1)
+            stack.append(1)
         self.assertEqual(s.pop(), 1)
-        s.append(1)
-        s.append(2)
-        s.append(3)
-        self.assertEqual(s.pop(), 3)
+        stack.append(1)
+        stack.append(2)
+        stack.append(3)
+        self.assertEqual(stack.pop(), 3)
 
     def test_get_command(self):
         self.assertEqual(get_command(Color.red, Color.yellow),

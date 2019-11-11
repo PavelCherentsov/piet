@@ -1,10 +1,8 @@
 from math import inf, sqrt
 import operator
 from PIL import Image
-from .CodelChooser import CodelChooser
-from .Direction import Direction, DIRECTION_POINT
-from .DirectionPointer import DirectionPointer
-from .Point import Point
+from .Direction import (Direction, DIRECTION_POINT, Point,
+                        CodelChooser, DirectionPointer)
 from .ColorTable import COLORS, Color, COLOR_TABLE
 
 DIR_POINTS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
@@ -71,7 +69,7 @@ class Interpreter:
         elif codel_size in good_codel_size:
             self.init_image_map(self.image, codel_size)
         else:
-            raise Exception("Invalid codel size")
+            raise ValueError("Invalid codel size")
         self.find_start_point(self.image_map)
         self.command = None
 
@@ -153,7 +151,8 @@ class Interpreter:
                 result.append(e)
         return result
 
-    def check_codel(self, k, rgb_im, x, y, color):
+    @staticmethod
+    def check_codel(k, rgb_im, x, y, color):
         for i in range(k):
             for j in range(k):
                 color1 = get_rgb(rgb_im, x + i, y + j)
@@ -164,7 +163,7 @@ class Interpreter:
     def init_image_map(self, rgb_im, codel_size):
         self.image_map = []
         if rgb_im.width % codel_size != 0 or rgb_im.height % codel_size != 0:
-            raise Exception("Invalid codel size")
+            raise ValueError("Invalid codel size")
         w = rgb_im.width // codel_size
         h = rgb_im.height // codel_size
         for x in range(w + 2):
@@ -180,7 +179,7 @@ class Interpreter:
                                   (y - 1) * codel_size)
                     if not (rgb in COLORS.keys()):
                         if self.mode == 'None':
-                            raise Exception(
+                            raise ValueError(
                                 'Invalid Pixel: ({}, {})'.format(x, y))
                         if self.mode == 'white':
                             self.image_map[x].append(

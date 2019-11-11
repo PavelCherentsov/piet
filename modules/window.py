@@ -1,7 +1,6 @@
 from modules.components.Interpreter import Interpreter
 from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton,
-                             QListWidget, QTextEdit, QLineEdit,
-                             QGraphicsItemGroup)
+                             QListWidget, QTextEdit, QLineEdit)
 from PyQt5.QtGui import QIcon, QPixmap, QFont
 from PyQt5.QtCore import Qt
 import sys
