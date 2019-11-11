@@ -104,7 +104,7 @@ class Window(QWidget):
         for i in range(self.bugs_count):
             bug = QLabel(self)
             bug.setPixmap(QPixmap('bug.png').scaled(self.dx, self.dx))
-            bug.move(-100, -100)
+            bug.move(-1000, -1000)
             self.bugs.append(bug)
 
         self.show()
@@ -130,7 +130,7 @@ class Window(QWidget):
                                 (int(50 + (x - 1) * self.dx),
                                  int(50 + (y - 1) * self.dx)):
                             self.bugs_count += 1
-                            e.move(-100, -100)
+                            e.move(-1000, -1000)
                             break
         except IndexError:
             pass
@@ -143,6 +143,12 @@ class Window(QWidget):
         self.info_input.setEnabled(False)
         self.button_next.setEnabled(True)
         self.button_run.setEnabled(True)
+        for e in self.bugs:
+            e.move(-1000, -1000)
+        for e in self.interpreter.image_map:
+            for j in e:
+                j.is_stop = False
+
 
     def main(self):
         while True:
@@ -155,10 +161,22 @@ class Window(QWidget):
     def main_trace(self):
         self.info_input.setEnabled(False)
         if self.interpreter.is_in_num:
-            self.interpreter.stack.append(self.info_input.text())
+            try:
+                if self.info_input.text() == '':
+                    raise TypeError("Введите число")
+                else:
+                    self.interpreter.stack.append(self.info_input.text())
+            except TypeError:
+                raise TypeError("Введите число")
             self.interpreter.is_in_num = False
         if self.interpreter.is_in_char:
-            self.interpreter.stack.append(str(ord(self.info_input.text())))
+            try:
+                if self.info_input.text() == '':
+                    raise TypeError("Введите один символ")
+                else:
+                    self.interpreter.stack.append(str(ord(self.info_input.text())))
+            except TypeError:
+                raise TypeError("Введите один символ")
             self.interpreter.is_in_char = False
         self.info_input.clear()
 
@@ -183,7 +201,7 @@ class Window(QWidget):
                                 (int(50 + (e.x - 1) * self.dx),
                                  int(50 + (e.y - 1) * self.dx)):
                             self.bugs_count += 1
-                            b.move(-100, -100)
+                            b.move(-1000, -1000)
             return True
 
     def print_info(self):

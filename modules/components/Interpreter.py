@@ -14,14 +14,7 @@ def load_image(image):
 
 def get_rgb(rgb_im, x, y):
     r, g, b = rgb_im.getpixel((x, y))
-    res = []
-    rgb = [r, g, b]
-    for e in rgb:
-        if len(hex(e)) == 3:
-            res.append('{}0{}'.format(hex(e)[:2], hex(e)[2].upper()))
-        else:
-            res.append(hex(e).upper())
-    return '0x{}{}{}'.format(res[0][2:], res[1][2:], res[2][2:])
+    return '0x' + ('%02x%02x%02x' % (r, g, b)).upper()
 
 
 def gcd(a, b):
@@ -59,7 +52,6 @@ class Interpreter:
         self.image_map = []
         self.out = ""
         self.start_white = []
-        self.is_run = True
         self.is_in_num = False
         self.is_in_char = False
         self.is_run = True
@@ -92,7 +84,11 @@ class Interpreter:
         if not self.start_white:
             self.command = get_command(self.previous_color,
                                        next_pixel.color)
-            return self.command(self)
+            try:
+                return self.command(self)
+            except IndexError:
+                raise IndexError(
+                    "Что-то не так в коделе: ({},{})".format(self.x, self.y))
         else:
             self.command = None
 
@@ -267,7 +263,7 @@ class Interpreter:
                 return self.image_map[new_x][new_y]
 
 
-class Function(Interpreter):
+class Function:
     def _push(self):
         self.stack.append(str(self.previous_value))
 
@@ -275,52 +271,54 @@ class Function(Interpreter):
         return self.stack.pop()
 
     def _add(self):
-        self.stack.append(str(int(self.stack.pop()) + int(self.stack.pop())))
+        self.stack.append(
+            str(int(Function._pop(self)) + int(Function._pop(self))))
 
     def _subtract(self):
-        x = self.stack.pop()
-        y = self.stack.pop()
+        x = Function._pop(self)
+        y = Function._pop(self)
         self.stack.append(str(int(y) - int(x)))
 
     def _multiply(self):
-        self.stack.append(str(int(self.stack.pop()) * int(self.stack.pop())))
+        self.stack.append(
+            str(int(Function._pop(self)) * int(Function._pop(self))))
 
     def _divide(self):
-        x = self.stack.pop()
-        y = self.stack.pop()
+        x = Function._pop(self)
+        y = Function._pop(self)
         self.stack.append(str(int(y) // int(x)))
 
     def _mod(self):
-        x = int(self.stack.pop())
-        y = int(self.stack.pop())
+        x = int(Function._pop(self))
+        y = int(Function._pop(self))
         while y <= 0:
             y += x
         self.stack.append(str(y % x))
 
     def _not(self):
-        value = int(int(self.stack.pop()) == 0)
+        value = int(int(Function._pop(self)) == 0)
         self.stack.append(str(value))
 
     def _greater(self):
-        x = int(self.stack.pop())
-        y = int(self.stack.pop())
+        x = int(Function._pop(self))
+        y = int(Function._pop(self))
         if y > x:
             self.stack.append('1')
         else:
             self.stack.append('0')
 
     def _duplicate(self):
-        e = self.stack.pop()
+        e = Function._pop(self)
         self.stack.append(e)
         self.stack.append(e)
 
     def _out_num(self):
-        e = self.stack.pop()
+        e = Function._pop(self)
         self.out += str(e)
         return e
 
     def _out_char(self):
-        e = chr(int(self.stack.pop()))
+        e = chr(int(Function._pop(self)))
         self.out += e
         return e
 
@@ -331,14 +329,14 @@ class Function(Interpreter):
         self.is_in_char = True
 
     def _switch(self):
-        self.codel_chooser.switch(int(self.stack.pop()))
+        self.codel_chooser.switch(int(Function._pop(self)))
 
     def _pointer(self):
-        self.dir_pointer.pointer(int(self.stack.pop()))
+        self.dir_pointer.pointer(int(Function._pop(self)))
 
     def _roll(self):
-        num = int(self.stack.pop())
-        depth = int(self.stack.pop())
+        num = int(Function._pop(self))
+        depth = int(Function._pop(self))
         num %= depth
         x = -abs(num) + depth * (num < 0)
         self.stack[-depth:] = \

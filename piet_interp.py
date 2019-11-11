@@ -10,10 +10,16 @@ def start_console(interpreter):
         if point is not None:
             print(point, sep=' ', end='', flush=True)
         if interpreter.is_in_num:
-            interpreter.stack.append(input())
+            try:
+                interpreter.stack.append(str(int(input())))
+            except TypeError:
+                raise TypeError("Введите число")
             interpreter.is_in_num = False
         if interpreter.is_in_char:
-            interpreter.stack.append(str(ord(input())))
+            try:
+                interpreter.stack.append(str(ord(input())))
+            except TypeError:
+                raise TypeError("Введите один символ")
             interpreter.is_in_char = False
 
 
