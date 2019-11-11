@@ -27,7 +27,7 @@ class Window(QWidget):
         label.setPixmap(qpm)
         label.setGeometry(50, 100, qpm.width(), qpm.height())
 
-        self.dx = max(width // 2 + width // 4 - 50, height - 300) / (
+        self.dx = max(label.width(), label.height()) / (
                 len(self.interpreter.image_map) - 2)
 
         info_stack_text = QLabel(self)
@@ -50,7 +50,7 @@ class Window(QWidget):
         self.info_function.setFont(QFont("Arial", 14))
         self.info_function.setMinimumWidth(1000)
         self.info_function.setVisible(True)
-        self.info_function.move(width // 2 + width // 4 - 100, 0)
+        self.info_function.move(width // 2 - 100, 50)
 
         self.info_output = QTextEdit(self)
         self.info_output.setFixedWidth(width - 200)
@@ -90,9 +90,8 @@ class Window(QWidget):
 
         self.show()
 
-    def showDialog(self, title):
-
-        text, ok = QInputDialog.getText(self, 'Input Dialog', title)
+    def show_dialog(self, title):
+        text, ok = QInputDialog.getText(self, 'Input', title)
         if ok:
             return str(text)
 
@@ -148,14 +147,14 @@ class Window(QWidget):
         self.interpreter.start()
 
         if self.interpreter.is_in_num:
-            e = self.showDialog('Input number:')
+            e = self.show_dialog('Input number:')
             try:
                 self.interpreter.stack.append(str(int(e)))
             except ValueError:
                 raise ValueError('Invalid input')
             self.interpreter.is_in_num = False
         if self.interpreter.is_in_char:
-            e = self.showDialog('Input char:')
+            e = self.show_dialog('Input char:')
             try:
                 self.interpreter.stack.append(str(ord(e)))
             except ValueError:

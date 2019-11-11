@@ -78,7 +78,7 @@ N - ширина одного кодела в программе.
 Примеры запуска и вывод: 
 * `py piet_interp.py programs/HelloWorld4_mode.png --mode None` - `ValueError: Invalid Pixel: (29, 1)`
 * `py piet_interp.py programs/HelloWorld4_mode.png --mode white` - `Hello, World!`
-* `py piet_interp.py programs/HelloWorld4_mode.png --mode black` - `Hello, `
+* `py piet_interp.py programs/HelloWorld4_mode.png --mode black` - бесконечный цикл: `Hello,[in_num]`
 ### hw3-1.gif, hw5.png, Piet_hello_big.png
 Программы `Hello, World!` из сети.
 ### sum.png
@@ -100,5 +100,3 @@ N - ширина одного кодела в программе.
     tests\test_all.py                     283      1    99%
     -------------------------------------------------------
     TOTAL                                 648     52    92%
-    
-- [ ] Тесты

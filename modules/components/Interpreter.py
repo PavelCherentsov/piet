@@ -35,9 +35,9 @@ def divisor_generator(n):
 
 
 class Interpreter:
-    def __init__(self, image, codel_size, mode):
-        self.image_path = image
-        self.image = load_image(image)
+    def __init__(self, image_path, codel_size, mode):
+        self.image_path = image_path
+        self.image = load_image(image_path)
         self.codel_size = codel_size
         self.dir_pointer = DirectionPointer()
         self.codel_chooser = CodelChooser()

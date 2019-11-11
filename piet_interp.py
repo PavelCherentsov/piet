@@ -1,5 +1,10 @@
 from modules.components.Interpreter import Interpreter
 import argparse
+from PIL import Image
+
+
+def load_image(image):
+    return Image.open(image).convert('RGB')
 
 
 def start_console(interpreter):
@@ -43,6 +48,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.trace:
         from modules.window import start_window as start_window
-        start_window(Interpreter(args.image, args.codel_size, args.mode))
+        start_window(Interpreter(args.image,
+                                 args.codel_size, args.mode))
     else:
-        start_console(Interpreter(args.image, args.codel_size, args.mode))
+        start_console(Interpreter(args.image,
+                                  args.codel_size, args.mode))

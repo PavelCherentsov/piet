@@ -11,6 +11,7 @@ from modules.components.Direction import Direction, Point
 from modules.components.ColorTable import Color
 
 
+
 class InterpreterInputTest(unittest.TestCase):
     def test_find_start_point2(self):
         image = "tests/programs/HelloWorld4.png"
