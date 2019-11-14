@@ -1,6 +1,6 @@
 from modules.components.Interpreter import Interpreter
 from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton,
-                             QListWidget, QTextEdit, QLineEdit, QInputDialog)
+                             QListWidget, QTextEdit, QInputDialog)
 from PyQt5.QtGui import QIcon, QPixmap, QFont
 from PyQt5.QtCore import Qt
 import sys
@@ -9,7 +9,6 @@ import sys
 class Window(QWidget):
     def __init__(self, interpreter, width, height):
         super().__init__()
-        self.image = interpreter.image
         self.image_path = interpreter.image_path
         self.codel_size = interpreter.codel_size
         self.mode = interpreter.mode
@@ -100,9 +99,9 @@ class Window(QWidget):
         y = int((event.y() - 100) // self.dx + 1)
         try:
             if x <= 0 or \
-               y <= 0 or \
-               x >= len(self.interpreter.image_map) - 1 or \
-               y >= len(self.interpreter.image_map[0]) - 1:
+                    y <= 0 or \
+                    x >= len(self.interpreter.image_map) - 1 or \
+                    y >= len(self.interpreter.image_map[0]) - 1:
                 raise IndexError
             if self.bugs_count > 0:
                 if not self.interpreter.image_map[x][y].is_stop:
@@ -124,7 +123,9 @@ class Window(QWidget):
             pass
 
     def restart(self):
-        self.interpreter = Interpreter(self.image_path, self.codel_size,
+        self.interpreter = Interpreter(self.image_path,
+                                       self.interpreter.image_map_start,
+                                       self.codel_size,
                                        self.mode)
         self.print_info()
         self.button_next.setEnabled(True)
@@ -134,6 +135,7 @@ class Window(QWidget):
         for e in self.interpreter.image_map:
             for j in e:
                 j.is_stop = False
+        self.bugs_count = 20
 
     def main(self):
         while True:
@@ -189,7 +191,7 @@ class Window(QWidget):
             self.info_function.setText("Function: ")
         else:
             self.info_function.setText("Function: " +
-                                       self.interpreter.command.__name__[1:])
+                                       self.interpreter.command.name)
         self.info_output.setText(self.interpreter.out)
 
 
