@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              os.path.pardir))
 
 from modules.components.Interpreter import (Interpreter, get_command,
-                                            Function)
+                                            Function, State)
 from modules.components.Direction import Direction, Point
 from modules.components.ColorTable import Color
 from modules.ParseImage import load_image, create_image_map
@@ -26,7 +26,7 @@ class InterpreterParseImageTest(unittest.TestCase):
     def test_wrong_color(self):
         actual_image_map = create_image_map(
             load_image("tests/programs/wrong_color.png"))
-        expected_image_map = [[-1]]
+        expected_image_map = [['0xFFBAEB']]
         self.assertEqual(actual_image_map, expected_image_map)
 
 
@@ -69,7 +69,7 @@ class InterpreterValidTest(unittest.TestCase):
                      [1, 1, 1, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         i.initialize_block()
-        self.assertEqual(i.previous_color, Color.light_red)
+        self.assertEqual(i.previous_color, Color.LIGHT_RED)
         self.assertEqual(i.previous_value, 12)
 
     def test_init_image_map(self):
@@ -78,8 +78,8 @@ class InterpreterValidTest(unittest.TestCase):
                      [1, 1, 1, 1],
                      [1, 1, 1, 1]]
         i = Interpreter('path', image_map, 1, 'None')
-        self.assertEqual(i.image_map[0][0].color, Color.black)
-        self.assertNotEqual(i.image_map[1][1].color, Color.black)
+        self.assertEqual(i.image_map[0][0].color, Color.BLACK)
+        self.assertNotEqual(i.image_map[1][1].color, Color.BLACK)
 
     def test_init_next_pixel(self):
         image_map = [[1, 2],
@@ -102,19 +102,21 @@ class InterpreterValidTest(unittest.TestCase):
         self.assertEqual(p, None)
 
     def test_white(self):
-        image_map = [[0, 0],
-                     [0, 0]]
+        image_map = [[0, 0, 0],
+                     [0, 1, 0],
+                     [0, 0, 0]]
         i = Interpreter('path', image_map, 1, 'None')
         i.x = 1
         i.y = 1
         i.initialize_block()
-        p = i.go_white(Point(1, 1, Color.white))
+        p = i.go_white(Point(1, 1, Color.WHITE))
         self.assertEqual(p, None)
 
 
 class InterpreterFunctionsTest(unittest.TestCase):
     def test_dp_pointer(self):
-        image_map = [[0]]
+        image_map = [[1, 2],
+                     [2, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         self.assertEqual(i.dir_pointer.direction, Direction(0))
         i.dir_pointer.pointer(1)
@@ -125,7 +127,8 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.dir_pointer.direction, Direction(0))
 
     def test_dp_pointer(self):
-        image_map = [[0]]
+        image_map = [[1, 2],
+                     [2, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         self.assertEqual(i.dir_pointer.direction, Direction(0))
         i.dir_pointer.pointer(1)
@@ -136,7 +139,8 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.dir_pointer.direction, Direction(0))
 
     def test_cc_switch(self):
-        image_map = [[0]]
+        image_map = [[1, 2],
+                     [2, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         self.assertEqual(i.codel_chooser.direction, Direction(2))
         i.codel_chooser.switch(1)
@@ -164,26 +168,26 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(stack.pop(), 3)
 
     def test_get_command(self):
-        self.assertEqual(get_command(Color.red, Color.yellow),
+        self.assertEqual(get_command(Color.RED, Color.YELLOW),
                          Function._add)
-        self.assertEqual(get_command(Color.red, Color.blue),
+        self.assertEqual(get_command(Color.RED, Color.BLUE),
                          Function._duplicate)
-        self.assertEqual(get_command(Color.red, Color.light_red),
+        self.assertEqual(get_command(Color.RED, Color.LIGHT_RED),
                          Function._pop)
-        self.assertEqual(get_command(Color.red, Color.dark_red),
+        self.assertEqual(get_command(Color.RED, Color.DARK_RED),
                          Function._push)
-        self.assertEqual(get_command(Color.blue, Color.light_red),
+        self.assertEqual(get_command(Color.BLUE, Color.LIGHT_RED),
                          Function._not)
 
     def test_functions_push(self):
-        image_map = [[0]]
+        image_map = [[1, 2]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 23
         Function._push(i)
         self.assertEqual(i.stack.pop(), '23')
 
     def test_functions_pop(self):
-        image_map = [[0]]
+        image_map = [[1, 2]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 23
         Function._push(i)
@@ -191,7 +195,7 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.stack, [])
 
     def test_functions_add(self):
-        image_map = [[0]]
+        image_map = [[1, 2]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 23
         Function._push(i)
@@ -201,7 +205,7 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.stack.pop(), '55')
 
     def test_functions_sub(self):
-        image_map = [[0]]
+        image_map = [[1, 2]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 23
         Function._push(i)
@@ -211,7 +215,7 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.stack.pop(), '-9')
 
     def test_functions_mul(self):
-        image_map = [[0]]
+        image_map = [[1, 2]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 7
         Function._push(i)
@@ -221,7 +225,8 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.stack.pop(), '56')
 
     def test_functions_div(self):
-        image_map = [[0]]
+        image_map = [[1, 2],
+                     [2, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 40
         Function._push(i)
@@ -231,7 +236,8 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.stack.pop(), '5')
 
     def test_functions_mod(self):
-        image_map = [[0]]
+        image_map = [[1, 2],
+                     [2, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 5
         Function._push(i)
@@ -247,7 +253,8 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.stack.pop(), '1')
 
     def test_functions_not(self):
-        image_map = [[0]]
+        image_map = [[1, 2],
+                     [2, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 0
         Function._push(i)
@@ -263,7 +270,8 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.stack.pop(), '0')
 
     def test_functions_gr(self):
-        image_map = [[0]]
+        image_map = [[1, 2],
+                     [2, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 1
         Function._push(i)
@@ -279,7 +287,7 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.stack.pop(), '1')
 
     def test_functions_duplicate(self):
-        image_map = [[0]]
+        image_map = [[1, 2]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 23
         Function._push(i)
@@ -288,7 +296,8 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.stack.pop(), '23')
 
     def test_functions_switch(self):
-        image_map = [[0]]
+        image_map = [[1, 2],
+                     [2, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 111
         Function._push(i)
@@ -307,7 +316,8 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.codel_chooser.direction, Direction.LEFT)
 
     def test_functions_pointer(self):
-        image_map = [[0]]
+        image_map = [[1, 2],
+                     [2, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         i.previous_value = 40
         Function._push(i)
@@ -331,7 +341,8 @@ class InterpreterFunctionsTest(unittest.TestCase):
         self.assertEqual(i.dir_pointer.direction, Direction.RIGHT)
 
     def test_functions_roll_out(self):
-        image_map = [[0]]
+        image_map = [[1, 2],
+                     [2, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         i.stack = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 5, 3]
         Function._roll(i)
@@ -345,12 +356,27 @@ class InterpreterTest(unittest.TestCase):
     def test_hello_world(self):
         image_map = create_image_map(
             load_image("programs/HelloWorld.png"))
+
+        class Test:
+            def __init__(self, interpreter):
+                self.interpreter = interpreter
+                self.interpreter.output = self.out
+                self.result = ''
+                self.run()
+
+            def out(self, res):
+                self.result += res
+
+            def run(self):
+                while True:
+                    self.interpreter.step()
+                    if self.interpreter.state == State.END:
+                        break
+
         i = Interpreter('path', image_map, 1, 'None')
-        while True:
-            i.start()
-            if not i.is_run:
-                break
-        self.assertEqual(i.out, 'Hello, World!')
+        test = Test(i)
+
+        self.assertEqual(test.result, 'Hello, World!')
 
     def test_breakpoint(self):
         image_map = [[1, 0, 0],
@@ -358,11 +384,12 @@ class InterpreterTest(unittest.TestCase):
                      [0, 2, 1]]
         i = Interpreter('path', image_map, 1, 'None')
         i.image_map[3][2].is_stop = True
-        self.assertEqual(i.stop, False)
-        i.start()
-        i.start()
-        i.start()
-        self.assertEqual(i.stop, True)
+        self.assertEqual(i.state, State.RUNNING)
+        i.step()
+        i.step()
+        i.step()
+        i.step()
+        self.assertEqual(i.state, State.STOPPED)
 
 
 if __name__ == '__main__':

@@ -1,8 +1,9 @@
 from math import inf, sqrt
 import operator
+from enum import Enum
 from .Direction import (Direction, DIRECTION_POINT, Point,
                         CodelChooser, DirectionPointer)
-from .ColorTable import Color, COLOR_TABLE, COLORS
+from .ColorTable import Color, COLOR_TABLE
 
 DIR_POINTS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
@@ -24,6 +25,13 @@ def divisor_generator(n):
         yield int(divisor)
 
 
+class State(Enum):
+    STOPPED = 0,
+    RUNNING = 1,
+    WAIT_INPUT = 2,
+    END = 3,
+
+
 class Interpreter:
     def __init__(self, image_path, image_map, codel_size, mode):
         self.image_path = image_path
@@ -41,14 +49,16 @@ class Interpreter:
         self.x = 0
         self.y = 0
 
-        self.out = ""
+        self.output = None
+        self.input = None
 
         self.start_white = []
 
-        self.stop = False
+        self.state = State.RUNNING
+
         self.is_in_num = False
         self.is_in_char = False
-        self.is_run = True
+
         self.goods_codel_sizes = self.get_goods_codel_sizes()
         if codel_size == 0:
             self.init_image_map(self.goods_codel_sizes.pop())
@@ -58,44 +68,83 @@ class Interpreter:
             raise ValueError("Invalid codel size")
         self.find_start_point(self.image_map)
         self.command = None
+        self.next_command = None
+        self.set_next_command(self.image_map[self.x][self.y])
 
-    def start(self):
+    def step(self):
         self.initialize_block()
-        if self.stop:
+
+        if self.state == State.STOPPED:
             return
+
         next_pixel = self.check_end_program()
         if next_pixel is None:
-            self.is_run = False
+            self.state = State.END
             return
         next_pixel = self.go_white(next_pixel)
         if next_pixel is None:
-            self.is_run = False
+            self.state = State.END
             return
 
         self.x = next_pixel.x
         self.y = next_pixel.y
 
+        res = None
+
         if not self.start_white:
             self.command = get_command(self.previous_color,
                                        next_pixel.color)
             try:
-                return self.command(self)
+                res = self.command(self)
             except IndexError as e:
                 raise IndexError(
                     "\nInvalid command in the codel: ({},{})"
-                    "\n{}".format(self.x, self.y, e))
+                    .format(self.x, self.y)) from e
         else:
             self.command = None
 
+        if res is not None:
+            self.output(res)
+
+        if self.state == State.WAIT_INPUT:
+            self.input_start()
+        if next_pixel is not None:
+            self.set_next_command(next_pixel)
+
+    def input_start(self):
+        if self.is_in_num:
+            try:
+                self.stack.append(str(int(self.input())))
+            except ValueError as e:
+                raise ValueError("Enter the number") from e
+            self.is_in_num = False
+        if self.is_in_char:
+            try:
+                self.stack.append(str(ord(self.input())))
+            except ValueError as e:
+                raise ValueError("Enter one character") from e
+            self.is_in_char = False
+        self.state = State.RUNNING
+
+    def set_next_command(self, current_pixel):
+        self.initialize_block()
+        next_pixel = self.check_end_program()
+        if next_pixel is None:
+            return
+        next_pixel = self.go_white(next_pixel)
+        if next_pixel is None:
+            return
+        self.next_command = get_command(current_pixel.color, next_pixel.color)
+
     def go_white(self, next_pixel):
         self.start_white = []
-        if next_pixel.color == Color.white:
-            while next_pixel.color == Color.white:
+        if next_pixel.color == Color.WHITE:
+            while next_pixel.color == Color.WHITE:
                 for direction in DIRECTION_POINT.keys():
                     if self.dir_pointer.direction == direction:
                         new_x = next_pixel.x + DIRECTION_POINT[direction].x
                         new_y = next_pixel.y + DIRECTION_POINT[direction].y
-                        if self.image_map[new_x][new_y].color == Color.black:
+                        if self.image_map[new_x][new_y].color == Color.BLACK:
                             self.dir_pointer.pointer(1)
                             self.codel_chooser.switch(1)
                             break
@@ -124,7 +173,7 @@ class Interpreter:
                     (start_dp_direction, start_cc_direction):
                 break
         for e in next_pixels:
-            if e[0].color != Color.black:
+            if e[0].color != Color.BLACK:
                 self.dir_pointer.direction = e[1]
                 self.codel_chooser.direction = e[2]
                 return e[0]
@@ -133,23 +182,25 @@ class Interpreter:
         result = []
         for e in divisor_generator(
                 gcd(len(self.image_map), len(self.image_map[0]))):
-            flag = True
+            flag = False
             for x in range(len(self.image_map)):
                 for y in range(len(self.image_map[0])):
                     if x % e == 0 and y % e == 0:
                         color = self.image_map[x][y]
-                        flag = self.check_codel(e, x, y, color)
-            if flag:
+                        flag = self.check_codel(e, x, y, color, flag)
+            if not flag:
                 result.append(e)
         return result
 
-    def check_codel(self, k, x, y, color):
+    def check_codel(self, k, x, y, color, flag):
         for i in range(k):
             for j in range(k):
                 color1 = self.image_map[x + i][y + j]
                 if color != color1:
-                    return False
-        return True
+                    return True
+        if flag:
+            return True
+        return False
 
     def init_image_map(self, codel_size):
         if len(self.image_map[0]) % codel_size != 0 or \
@@ -163,20 +214,23 @@ class Interpreter:
         for x in range(w + 2):
             for y in range(h + 2):
                 if (x in (0, w + 1)) or (y in (0, h + 1)):
-                    image_map[x].append(Point(x, y, Color.black))
+                    image_map[x].append(Point(x, y, Color.BLACK))
                 else:
                     color = self.image_map[(x - 1) * codel_size][
                         (y - 1) * codel_size]
-                    if not (color in COLORS.keys()):
+                    if not (Color.WHITE.value <= color <= Color.BLACK.value):
                         if self.mode == 'None':
+                            x = x * codel_size
+                            y = y * codel_size
+                            color = self.image_map[x - 1][y - 1]
                             raise ValueError(
-                                'Invalid Pixel: ({}, {})'.format(x, y))
+                                f'Invalid Pixel: ({x}, {y}), color: {color}')
                         if self.mode == 'white':
-                            image_map[x].append(Point(x, y, Color.white))
+                            image_map[x].append(Point(x, y, Color.WHITE))
                         if self.mode == 'black':
-                            image_map[x].append(Point(x, y, Color.black))
+                            image_map[x].append(Point(x, y, Color.BLACK))
                     else:
-                        image_map[x].append(Point(x, y, COLORS[color]))
+                        image_map[x].append(Point(x, y, Color(color)))
 
         self.image_map = image_map
 
@@ -184,7 +238,7 @@ class Interpreter:
         for y in range(len(image_map[0])):
             for x in range(len(image_map)):
                 if not (self.image_map[x][y].color in
-                        [Color.black, Color.white]):
+                        [Color.BLACK, Color.WHITE]):
                     self.x = x
                     self.y = y
                     return None
@@ -209,7 +263,7 @@ class Interpreter:
         self.previous_value = len(self.block)
         for e in self.block:
             if e.is_stop:
-                self.stop = True
+                self.state = State.STOPPED
             e.is_used = False
 
     def find_next_point(self, best, a1, a2, best_p, f, f2):
@@ -324,22 +378,20 @@ class Function:
 
     @command('output num')
     def _out_num(self):
-        e = Function._pop(self)
-        self.out += str(e)
-        return e
+        return Function._pop(self)
 
     @command('output char')
     def _out_char(self):
-        e = chr(int(Function._pop(self)))
-        self.out += e
-        return e
+        return chr(int(Function._pop(self)))
 
     @command('input num')
     def _in_num(self):
+        self.state = State.WAIT_INPUT
         self.is_in_num = True
 
     @command('input char')
     def _in_char(self):
+        self.state = State.WAIT_INPUT
         self.is_in_char = True
 
     @command('switch')

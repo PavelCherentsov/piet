@@ -1,5 +1,4 @@
 from PIL import Image
-from .components.ColorTable import COLORS_NUM
 
 
 def load_image(image):
@@ -8,7 +7,7 @@ def load_image(image):
 
 def get_rgb(rgb_im, x, y):
     r, g, b = rgb_im.getpixel((x, y))
-    return '0x' + ('%02x%02x%02x' % (r, g, b)).upper()
+    return f'0x{r:02X}{g:02X}{b:02X}'
 
 
 def create_image_map(rgb_im):
@@ -20,8 +19,14 @@ def create_image_map(rgb_im):
     for x in range(w):
         for y in range(h):
             rgb = get_rgb(rgb_im, x, y)
-            if rgb in COLORS_NUM:
-                image_map[x].append(COLORS_NUM[rgb])
+            if rgb in COLORS:
+                image_map[x].append(COLORS.index(rgb))
             else:
-                image_map[x].append(-1)
+                image_map[x].append(rgb)
     return image_map
+
+
+COLORS = ["0xFFFFFF", "0xFFC0C0", "0xFF0000", "0xC00000", "0xFFFFC0",
+          "0xFFFF00", "0xC0C000", "0xC0FFC0", "0x00FF00", "0x00C000",
+          "0xC0FFFF", "0x00FFFF", "0x00C0C0", "0xC0C0FF", "0x0000FF",
+          "0x0000C0", "0xFFC0FF", "0xFF00FF", "0xC000C0", "0x000000"]

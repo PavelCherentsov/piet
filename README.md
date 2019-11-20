@@ -60,6 +60,8 @@ N - ширина одного кодела в программе.
 ## Описание тестовых программ
 ### alpha.png
 Программа ДОЛЖНА выводит символы от a до z
+### bfi.gif
+Brainfuck interpreter in Piet (https://lutter.cc/piet/)
 ### fib.png
 Эта программа, которая вычисляет приближение числа пи ... буквально путем деления
 круглой области на радиус в два раза.
@@ -79,12 +81,18 @@ N - ширина одного кодела в программе.
 * `py piet_interp.py programs/HelloWorld4_mode.png --mode None` - `ValueError: Invalid Pixel: (29, 1)`
 * `py piet_interp.py programs/HelloWorld4_mode.png --mode white` - `Hello, World!`
 * `py piet_interp.py programs/HelloWorld4_mode.png --mode black` - бесконечный цикл: `Hello,[in_num]`
+### helloworld-piet.gif
+Программа 2 в 1. Если запустить программу с `--codel-size 2`, она выведет
+`Piet`. Если запустить программу с `--codel-size 1`, она выведет
+`4Hello world!`.
 ### hw3-1.gif, hw5.png, Piet_hello_big.png
 Программы `Hello, World!` из сети.
 ### sum.png
 Простая программа добавления, которая складывает два входных числа.
 ### vovan.png
 Также фановая авторская программа 
+
+ 
 
 ## Подробности реализации
 Модули, отвечающие за работу интерпретатора, расположены в пакете modules.
