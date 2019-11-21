@@ -85,30 +85,9 @@ class Application(QWidget):
 
         self.bugs = []
 
-        self.bugs_count = \
-            self.window_input_bugs('How many breakpoints?\n'
-                                   'Enter the number of breakpoints')
-
-        for i in range(self.bugs_count):
-            bug = QLabel(self)
-            bug.setPixmap(QPixmap('bug.png').scaled(self.dx, self.dx))
-            bug.move(0, 0)
-            bug.setVisible(False)
-            self.bugs.append(bug)
-
         self.print_info('')
 
         self.show()
-
-    def window_input_bugs(self, title):
-        text, ok = QInputDialog.getText(self, 'Hello!', title)
-        if ok:
-            try:
-                return int(text)
-            except ValueError:
-                self.window_input_bugs(title)
-        else:
-            sys.exit(0)
 
     def show_dialog(self, title):
         text, ok = QInputDialog.getText(self, 'Input', title)
@@ -133,24 +112,23 @@ class Application(QWidget):
             if not (0 < x < len(self.interpreter.image_map) - 1) or \
                     not (0 < y < len(self.interpreter.image_map[0]) - 1):
                 raise IndexError
-            if self.bugs_count:
-                if not self.interpreter.image_map[x][y].is_stop:
-                    self.interpreter.image_map[x][y].is_stop = True
-                    self.bugs_count -= 1
-                    bug = self.bugs[self.bugs_count]
-                    bug.move(50 + (x - 1) * self.dx,
-                             100 + (y - 1) * self.dx)
-                    bug.setVisible(True)
-                else:
-                    self.interpreter.image_map[x][y].is_stop = False
-                    for e in self.bugs:
-                        if (e.x(), e.y()) == \
-                                (int(50 + (x - 1) * self.dx),
-                                 int(100 + (y - 1) * self.dx)):
-                            self.bugs_count += 1
-                            e.move(0, 0)
-                            e.setVisible(False)
-                            break
+            if not self.interpreter.image_map[x][y].is_stop:
+                self.interpreter.image_map[x][y].is_stop = True
+                bug = QLabel(self)
+                bug.setPixmap(QPixmap('bug.png').scaled(self.dx, self.dx))
+                bug.move(50 + (x - 1) * self.dx,
+                         100 + (y - 1) * self.dx)
+                bug.setVisible(True)
+                self.bugs.append(bug)
+            else:
+                self.interpreter.image_map[x][y].is_stop = False
+                for e in self.bugs:
+                    if (e.x(), e.y()) == \
+                            (int(50 + (x - 1) * self.dx),
+                             int(100 + (y - 1) * self.dx)):
+                        e.setVisible(False)
+                        e.destroy()
+                        break
         except IndexError:
             return
 
@@ -171,7 +149,6 @@ class Application(QWidget):
         for e in self.interpreter.image_map:
             for j in e:
                 j.is_stop = False
-        self.bugs_count = 1000
 
     def show_input(self):
         if self.interpreter.is_in_num:
@@ -207,9 +184,8 @@ class Application(QWidget):
                         if (b.x(), b.y()) == \
                                 (int(50 + (e.x - 1) * self.dx),
                                  int(100 + (e.y - 1) * self.dx)):
-                            self.bugs_count += 1
-                            b.move(0, 0)
                             b.setVisible(False)
+                            b.destroy()
             return True
 
     def print_info(self, e):
